@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: bde2020/zookeeper:3.4.10
+    container_name: zookeeper
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    ports:
+      - "9870:9870" # HDFS Web UI
+      - "9000:9000" # Data IPC
+    env_file:
+      - ./hadoop.env
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    env_file:
+      - ./hadoop.env
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+
+  hbase-master:
+    image: bde2020/hbase-master:1.0.0-hbase2.2.3
+    container_name: hbase-master
+    ports:
+      - "16010:16010" # HBase Web UI
+    env_file:
+      - ./hadoop.env
+    depends_on:
+      - namenode
+      - zookeeper
+
+  hbase-regionserver:
+    image: bde2020/hbase-regionserver:1.0.0-hbase2.2.3
+    container_name: hbase-regionserver
+    env_file:
+      - ./hadoop.env
+    depends_on:
+      - hbase-master
+
+volumes:
+  namenode_data:
+  datanode_data:
