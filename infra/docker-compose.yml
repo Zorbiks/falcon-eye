@@ -1,0 +1,57 @@
+services:
+  zookeeper:
+    image: zookeeper:3.4
+    container_name: zookeeper
+
+  hdfs-namenode:
+    image: gradiant/hdfs-namenode:2.7.7
+    container_name: hdfs-namenode
+    env_file:
+      - ./hadoop.env
+    ports:
+      - "50070:50070"
+      - "8020:8020"
+    volumes:
+      - namenode_name:/hadoop/dfs/name
+
+  hdfs-datanode:
+    image: gradiant/hdfs-datanode:2.7.7
+    container_name: hdfs-datanode
+    env_file:
+      - ./hadoop.env
+    depends_on:
+      - hdfs-namenode
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+
+  hbase-master:
+    image: gradiant/hbase-master
+    container_name: hbase-master
+    env_file:
+      - ./hadoop.env
+    ports:
+      - "60010:60010"
+    depends_on:
+      - zookeeper
+      - hdfs-namenode
+
+  hbase-region:
+    image: gradiant/hbase-region
+    container_name: hbase-region
+    env_file:
+      - ./hadoop.env
+    depends_on:
+      - hbase-master
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: falcon-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=falcon_eye_metadata
+    ports:
+      - "3306:3306"
+
+volumes:
+  namenode_name:
+  datanode_data:
