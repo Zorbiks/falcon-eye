@@ -34,6 +34,13 @@ services:
     depends_on:
       - zookeeper
       - hdfs-namenode
+    # ADD THIS PART:
+    links:
+      - zookeeper
+      - hdfs-namenode
+    environment:
+      - HBASE_CONF_hbase_zookeeper_quorum=zookeeper
+      - HBASE_CONF_hbase_rootdir=hdfs://hdfs-namenode:8020/hbase
 
   hbase-region:
     image: gradiant/hbase-region
