@@ -1,7 +1,12 @@
 services:
   zookeeper:
-    image: zookeeper:3.4
+    image: zookeeper:3.4.14
     container_name: zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    networks:
+      - ubuntu_default
 
   hdfs-namenode:
     image: gradiant/hdfs-namenode:2.7.7
@@ -13,6 +18,8 @@ services:
       - "8020:8020"
     volumes:
       - namenode_name:/hadoop/dfs/name
+    networks:
+      - ubuntu_default
 
   hdfs-datanode:
     image: gradiant/hdfs-datanode:2.7.7
@@ -23,6 +30,8 @@ services:
       - hdfs-namenode
     volumes:
       - datanode_data:/hadoop/dfs/data
+    networks:
+      - ubuntu_default
 
   hbase-master:
     image: gradiant/hbase-master
@@ -31,24 +40,27 @@ services:
       - ./hadoop.env
     ports:
       - "60010:60010"
+      - "16000:16000"
     depends_on:
-      - zookeeper
-      - hdfs-namenode
-    # ADD THIS PART:
-    links:
       - zookeeper
       - hdfs-namenode
     environment:
       - HBASE_CONF_hbase_zookeeper_quorum=zookeeper
       - HBASE_CONF_hbase_rootdir=hdfs://hdfs-namenode:8020/hbase
+    networks:
+      - ubuntu_default
 
   hbase-region:
     image: gradiant/hbase-region
     container_name: hbase-region
     env_file:
       - ./hadoop.env
+    ports:
+      - "16020:16020"
     depends_on:
       - hbase-master
+    networks:
+      - ubuntu_default
 
   mysql-db:
     image: mysql:8.0
@@ -58,6 +70,12 @@ services:
       - MYSQL_DATABASE=falcon_eye_metadata
     ports:
       - "3306:3306"
+    networks:
+      - ubuntu_default
+
+networks:
+  ubuntu_default:
+    external: true
 
 volumes:
   namenode_name:
