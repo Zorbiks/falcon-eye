@@ -1,3 +1,5 @@
+version: "3"
+
 services:
   zookeeper:
     image: zookeeper:3.4.14
@@ -66,8 +68,7 @@ services:
     image: mysql:8.0
     container_name: falcon-mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=falcon_eye_metadata
+      - ./hadoop.env
     ports:
       - "3306:3306"
     networks:
