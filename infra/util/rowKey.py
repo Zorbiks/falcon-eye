@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-df = pd.read_csv('data.csv')
+df = pd.read_csv('../data.csv')
 
 df['row_key'] = df['COUNTRY'] + "#" + df['WEEK'] + "#" + df['ID'].astype(str)
 
