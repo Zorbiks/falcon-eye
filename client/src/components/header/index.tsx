@@ -2,11 +2,11 @@ import { Shield, Activity, Wifi } from 'lucide-react'
 
 export const Header = () => {
   return (
-    <header className="h-14 w-full border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md flex items-center justify-between px-6 z-[1001]">
+    <header className="h-20 w-full border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md flex items-center justify-between px-6 z-[1001]">
       {/* Left: Branding */}
-      <div className="flex items-center gap-3">
-        <div className="p-1.5 bg-emerald-600 rounded shadow-[0_0_15px_rgba(5,150,105,0.3)]">
-          <Shield className="w-5 h-5 text-zinc-950" />
+      <div className="flex items-center gap-2">
+        <div>
+          <img className="w-[45px]" src="/assets/logo.png" alt="falcon-eye logo" />
         </div>
         <div>
           <h1 className="text-sm font-black uppercase tracking-tighter leading-none text-zinc-100">
@@ -29,7 +29,7 @@ export const Header = () => {
         </div>
         <div className="flex flex-col items-end">
           <span className="text-zinc-500 uppercase">Region</span>
-          <span className="text-zinc-200">GLOBAL_MONITOR</span>
+          <span className="text-zinc-200">GLOBAL</span>
         </div>
       </div>
 
