@@ -1,3 +1,9 @@
+import MainMap from '../map'
+
 export default function Home() {
-  return <h1>Home Page</h1>
+  return (
+    <section>
+      <MainMap />
+    </section>
+  )
 }

@@ -12,7 +12,9 @@ export const Header = () => {
           <h1 className="text-sm font-black uppercase tracking-tighter leading-none text-zinc-100">
             Falcon <span className="text-emerald-500">Eye</span>
           </h1>
-          <p className="text-[10px] font-mono text-zinc-500 leading-none mt-1">OSINT_UNIT // NODE_01</p>
+          <p className="text-[10px] font-mono text-zinc-500 leading-none mt-1">
+            Open-source tracking · refreshed continuously
+          </p>
         </div>
       </div>
 
