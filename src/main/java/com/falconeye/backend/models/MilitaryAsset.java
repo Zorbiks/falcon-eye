@@ -20,17 +20,17 @@ public class MilitaryAsset {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private AssetType type; // Updated to match UML Enum
+    private AssetType type;
 
     private Double latitude;
     private Double longitude;
 
     @Enumerated(EnumType.STRING)
-    private AssetStatus status; // Updated to match UML Enum
+    private AssetStatus status;
     
     private LocalDateTime lastDeployed;
 
-    // Method from your UML diagram!
+    
     public void updateLocation(Double lat, Double lon) {
         this.latitude = lat;
         this.longitude = lon;
