@@ -12,7 +12,7 @@ export default function Home() {
 
       <MainMap />
 
-      <div className="flex justify-between w-[95%]">
+      <div className="flex justify-between gap-5 w-[95%]">
         <TimelineFeed />
         <StatsCard />
       </div>

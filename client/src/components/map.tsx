@@ -4,13 +4,13 @@ import 'leaflet/dist/leaflet.css'
 
 export default function MainMap() {
   return (
-    <div className="relative mx-auto flex h-[600px] w-[95%] flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
-      <div className="w-full border-b border-zinc-800 bg-zinc-900/80 px-5 py-6 flex justify-between">
-        <h1 className="text-[22px] text-zinc-400 font-bold">Conflict Map</h1>
+    <div className="relative mx-auto flex h-[600px] w-[95%] flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+      <div className="w-full border-b border-slate-800 bg-slate-900/85 px-5 py-6 flex justify-between">
+        <h1 className="text-[22px] text-slate-100 font-bold">Conflict Map</h1>
 
         <div className="flex gap-3">
-          <Home className="stroke-zinc-400 cursor-pointer" />
-          <Expand className="stroke-zinc-400 cursor-pointer" />
+          <Home className="stroke-slate-200 cursor-pointer" />
+          <Expand className="stroke-slate-200 cursor-pointer" />
         </div>
       </div>
 
@@ -32,7 +32,7 @@ export default function MainMap() {
       </div>
 
       <div className="absolute left-0 bottom-2 z-[1000] ml-3 pointer-events-none">
-        <div className="bg-zinc-900/90 border border-zinc-800 p-3 backdrop-blur-sm shadow-2xl">
+        <div className="bg-slate-900/90 border border-slate-700 p-3 backdrop-blur-sm shadow-2xl">
           <div className="flex flex-col gap-1 font-mono">
             <p className="text-[10px] text-emerald-500 font-bold tracking-widest">LEGEND</p>
           </div>

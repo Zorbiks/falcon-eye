@@ -16,11 +16,11 @@ const ranges = ['24h', '7d', '30d', 'All']
 
 export default function Filters() {
   return (
-    <div className="flex items-center gap-3 bg-[#0b0b0b] p-2  w-full overflow-x-auto no-scrollbar ">
+    <div className="flex items-center gap-3 bg-slate-950/80 border border-slate-800/70 rounded-xl p-2 w-full overflow-x-auto no-scrollbar">
       {/* Primary Selector */}
       <Button
         variant="secondary"
-        className="bg-zinc-800/50 text-zinc-100 hover:bg-zinc-800 border border-zinc-700 h-8 text-xs font-medium px-4"
+        className="bg-slate-800/70 text-slate-100 hover:bg-slate-800 border border-slate-600 h-8 text-xs font-medium px-4"
       >
         All events (383)
       </Button>
@@ -30,7 +30,7 @@ export default function Filters() {
         {eventTypes.map((event) => (
           <button
             key={event.label}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-zinc-800/80 bg-zinc-900/30 hover:bg-zinc-800/50 transition-colors group"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-slate-800/70 bg-slate-900/60 hover:bg-slate-800/80 transition-colors group"
           >
             <span
               className={cn(
@@ -39,18 +39,18 @@ export default function Filters() {
                 'shadow-[0_0_5px_rgba(0,0,0,0.5)] group-hover:scale-110 transition-transform',
               )}
             />
-            <span className="text-[11px] text-zinc-400 font-medium whitespace-nowrap">
-              {event.label} <span className="text-zinc-600 ml-0.5">({event.count})</span>
+            <span className="text-[11px] text-slate-200 font-medium whitespace-nowrap">
+              {event.label} <span className="text-slate-300 ml-0.5">({event.count})</span>
             </span>
           </button>
         ))}
       </div>
 
-      <Separator orientation="vertical" className="h-6 bg-zinc-800 mx-2" />
+      <Separator orientation="vertical" className="h-6 bg-slate-700 mx-2" />
 
       {/* Time Range Selector */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-bold text-zinc-500 tracking-tighter mr-1 uppercase">Range</span>
+        <span className="text-[10px] font-bold text-slate-300 tracking-tighter mr-1 uppercase">Range</span>
         {ranges.map((range) => (
           <Button
             key={range}
@@ -58,8 +58,8 @@ export default function Filters() {
             className={cn(
               'h-7 px-3 text-[11px] font-mono border transition-all',
               range === 'All'
-                ? 'bg-zinc-800 text-zinc-100 border-zinc-700'
-                : 'text-zinc-500 border-transparent hover:border-zinc-800 hover:text-zinc-300',
+                ? 'bg-slate-800 text-slate-100 border-slate-600'
+                : 'text-slate-300 border-transparent hover:border-slate-700 hover:text-slate-100',
             )}
           >
             {range}
