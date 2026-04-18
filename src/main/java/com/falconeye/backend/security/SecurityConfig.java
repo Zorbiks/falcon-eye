@@ -1,64 +1,56 @@
 package com.falconeye.backend.security;
 
-import com.falconeye.backend.models.Role;
-import com.falconeye.backend.models.User;
-import com.falconeye.backend.repositories.UserRepository;
-import org.springframework.boot.CommandLineRunner;
+import com.falconeye.backend.services.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Enables the @PreAuthorize annotations in the Controller
+@EnableMethodSecurity
 public class SecurityConfig {
 
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthFilter;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disabled for easy Postman testing
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() 
-                
-                // --- NEW JALON 3 RULE: HBase Big Data Access ---
-                .requestMatchers(HttpMethod.GET, "/api/events/**").hasAnyRole("ADMIN", "USER")
-                
-                // --- JALON 2 RULES: MySQL CRUD Access ---
-                .requestMatchers(HttpMethod.GET, "/api/assets/**").hasAnyRole("ADMIN", "USER")
-                .requestMatchers(HttpMethod.POST, "/api/assets/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/assets/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/assets/**").hasRole("ADMIN")
-                
-                .anyRequest().authenticated()
+                .requestMatchers("/api/auth/**").permitAll() // Allow open access to login/register
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Require ADMIN role
+                .anyRequest().authenticated() // All other endpoints require authentication
             )
-            .httpBasic(Customizer.withDefaults()); // Uses Basic Auth for the REST API
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
-    // This automatically creates users in MySQL so you can test immediately!
     @Bean
-    public CommandLineRunner initData(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        return args -> {
-            if (userRepository.count() == 0) {
-                User admin = new User(null, "commander", passwordEncoder.encode("admin123"), Role.ADMIN);
-                User user = new User(null, "analyst", passwordEncoder.encode("user123"), Role.USER);
-                userRepository.save(admin);
-                userRepository.save(user);
-                System.out.println("✅ Default users created: 'commander' (ADMIN) and 'analyst' (USER)");
-            }
-        };
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
