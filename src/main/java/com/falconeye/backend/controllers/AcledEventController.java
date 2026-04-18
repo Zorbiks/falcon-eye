@@ -22,44 +22,50 @@ public class AcledEventController {
     @GetMapping("/country/{countryName}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')") // Both roles can view Intelligence
     public ResponseEntity<List<AcledEvent>> getCountryEvents(@PathVariable String countryName) {
-        
-        // Capitalize the first letter just in case the frontend sends "algeria" instead of "Algeria"
+
+        // Capitalize the first letter just in case the frontend sends "algeria" instead
+        // of "Algeria"
         String formattedCountry = countryName.substring(0, 1).toUpperCase() + countryName.substring(1).toLowerCase();
-        
+
         List<AcledEvent> events = hbaseService.getEventsByCountry(formattedCountry);
-        
+
         if (events.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        
+
         return ResponseEntity.ok(events);
     }
 
-    // 2. Search Endpoint (Date Ranges)
+    // Search Endpoint (Date Ranges)
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<AcledEvent>> searchEvents(
             @RequestParam String country,
             @RequestParam String startDate,
-            @RequestParam String endDate) {
-        
+            @RequestParam String endDate,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String admin1,
+            @RequestParam(required = false) String eventType,
+            @RequestParam(required = false) String subEventType,
+            @RequestParam(required = false) String disorderType) {
+
         String formattedCountry = country.substring(0, 1).toUpperCase() + country.substring(1).toLowerCase();
-        List<AcledEvent> events = hbaseService.searchEventsByDateRange(formattedCountry, startDate, endDate);
-        
-        if (events.isEmpty()) {
+        List<AcledEvent> events = hbaseService.searchEventsByDateRange(
+                formattedCountry, startDate, endDate, region, admin1, eventType, subEventType, disorderType);
+
+        if (events.isEmpty())
             return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(events);
     }
 
-    // 3. Stats Dashboard Endpoint
+    // Stats Dashboard Endpoint
     @GetMapping("/stats/{countryName}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<CountryStats> getStats(@PathVariable String countryName) {
-        
+
         String formattedCountry = countryName.substring(0, 1).toUpperCase() + countryName.substring(1).toLowerCase();
         CountryStats stats = hbaseService.getCountryStats(formattedCountry);
-        
+
         return ResponseEntity.ok(stats);
     }
 }
