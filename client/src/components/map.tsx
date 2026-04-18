@@ -1,20 +1,68 @@
-import { Home, Expand } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Button } from './ui/button'
+import { Home, Expand, Minimize2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
 
 export default function MainMap() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === containerRef.current)
+      // Ensure Leaflet recalculates dimensions after fullscreen transition.
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 0)
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    }
+  }, [])
+
+  const toggleFullscreen = async () => {
+    if (!containerRef.current) return
+
+    if (document.fullscreenElement === containerRef.current) {
+      await document.exitFullscreen()
+      return
+    }
+
+    await containerRef.current.requestFullscreen()
+  }
+
   return (
-    <div className="relative mx-auto flex h-[600px] w-[95%] flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
-      <div className="w-full border-b border-slate-800 bg-slate-900/85 px-5 py-6 flex justify-between">
-        <h1 className="text-[22px] text-slate-100 font-bold">Conflict Map</h1>
+    <div
+      ref={containerRef}
+      className="relative mx-auto flex h-[600px] w-[95%] flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-950 fullscreen:w-full fullscreen:h-full"
+    >
+      <div className="w-full border-b border-slate-800 bg-slate-900/85 px-5 py-4 pt-5 flex justify-between">
+        <h1 className="text-[20px] text-slate-100 font-bold">Conflict Map</h1>
 
         <div className="flex gap-3">
-          <Home className="stroke-slate-200 cursor-pointer" />
-          <Expand className="stroke-slate-200 cursor-pointer" />
+          <Button className="bg-transparent p-0 hover:bg-transparent">
+            <Home className="w-[20px] stroke-slate-200 cursor-pointer" />
+          </Button>
+
+          <Button
+            className="bg-transparent p-0 hover:bg-transparent"
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? 'Exit fullscreen map' : 'Enter fullscreen map'}
+          >
+            {isFullscreen ? (
+              <Minimize2 className="w-[20px] stroke-slate-200 cursor-pointer" />
+            ) : (
+              <Expand className="w-[20px] stroke-slate-200 cursor-pointer" />
+            )}
+          </Button>
         </div>
       </div>
 
-      <div className="w-full flex-1 overflow-hidden">
+      <div
+        className="w-full flex-1 overflow-hidden[&_.leaflet-bar]:border-zinc-800 [&_.leaflet-bar]:shadow-none [&_.leaflet-bar_a]:bg-zinc-900 [&_.leaflet-bar_a]:text-zinc-400 [&_.leaflet-bar_a]:border-zinc-800 [&_.leaflet-bar_a:hover]:bg-emerald-500/20 [&_.leaflet-bar_a:hover]:text-emerald-400 [&_.leaflet-control-zoom-in]:font-mono [&_.leaflet-control-zoom-out]:font-mono
+      "
+      >
         <MapContainer
           center={[51.505, -0.09]}
           zoom={6}
