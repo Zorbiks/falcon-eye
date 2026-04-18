@@ -3,7 +3,6 @@ import { Shield, Activity, Wifi } from 'lucide-react'
 export const Header = () => {
   return (
     <header className="h-20 w-full border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md flex items-center justify-between px-6 z-[1001]">
-      {/* Left: Branding */}
       <div className="flex items-center gap-2">
         <div>
           <img className="w-[45px]" src="/assets/logo.png" alt="falcon-eye logo" />
@@ -18,7 +17,6 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Center: System Status (Informative) */}
       <div className="hidden md:flex items-center gap-8 font-mono text-[10px]">
         <div className="flex flex-col items-end">
           <span className="text-zinc-500 uppercase">Data_Stream</span>
@@ -33,7 +31,6 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Right: Live Indicator */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 px-3 py-1.5 rounded-full">
           <div className="relative h-2 w-2">

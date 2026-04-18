@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css'
 
 export default function MainMap() {
   return (
-    <div className="relative mx-auto flex h-[500px] w-[95%] flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
+    <div className="relative mx-auto flex h-[600px] w-[95%] flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
       <div className="w-full border-b border-zinc-800 bg-zinc-900/80 px-5 py-6 flex justify-between">
         <h1 className="text-[22px] text-zinc-400 font-bold">Conflict Map</h1>
 

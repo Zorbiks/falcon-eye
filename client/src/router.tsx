@@ -1,5 +1,5 @@
 import { createHashRouter, RouteObject } from 'react-router-dom'
-import Layout from 'src/components/layout'
+import Layout from 'src/layout'
 import Home from 'src/components/pages/Home'
 import ErrorPage from 'src/components/pages/ErrorPage'
 
