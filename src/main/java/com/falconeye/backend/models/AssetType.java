@@ -1,8 +1,22 @@
 package com.falconeye.backend.models;
 
 public enum AssetType {
-    NAVAL_VESSEL,
-    UAV_DRONE,
+    // LAND FORCES
     INFANTRY_UNIT,
-    AIR_BASE
+    MAIN_BATTLE_TANK,
+    ARTILLERY_BATTERY,
+    AIR_DEFENSE_SYSTEM,
+    COMMAND_POST,
+
+    // AIR FORCES
+    UAV_DRONE,
+    FIGHTER_AIRCRAFT,
+    ATTACK_HELICOPTER,
+    AIR_BASE,
+    EARLY_WARNING_RADAR,
+
+    // NAVAL FORCES
+    NAVAL_VESSEL,
+    SUBMARINE,
+    NAVAL_BASE
 }
