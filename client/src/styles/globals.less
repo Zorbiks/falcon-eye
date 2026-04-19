@@ -52,9 +52,16 @@
 @layer base {
   * {
     @apply border-border;
+    font-size: 110%;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-y-auto;
   }
 }
