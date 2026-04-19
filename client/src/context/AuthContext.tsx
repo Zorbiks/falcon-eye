@@ -47,7 +47,7 @@ type AuthRequestBody = {
 }
 
 const AUTH_STORAGE_KEY = 'falcon-eye-auth-session'
-const AUTH_API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+const AUTH_API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 

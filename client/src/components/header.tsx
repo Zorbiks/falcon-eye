@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+import { Button } from 'src/components/ui/button'
 import { Shield, Activity, Wifi } from 'lucide-react'
 
 export const Header = () => {
@@ -32,6 +34,19 @@ export const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
+        <div className="hidden sm:flex items-center gap-2">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="border-slate-700 bg-slate-950/70 text-slate-100 hover:bg-slate-900 hover:text-white"
+          >
+            <Link to="/login">Log in</Link>
+          </Button>
+          <Button asChild size="sm" className="bg-emerald-600 text-white hover:bg-emerald-500">
+            <Link to="/signup">Sign up</Link>
+          </Button>
+        </div>
         <div className="flex items-center gap-2 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-full">
           <div className="relative h-2 w-2">
             <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
