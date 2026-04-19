@@ -23,7 +23,7 @@ export default function SignupPage() {
   }
 
   return (
-    <section className="w-full min-h-[calc(100vh-64px)] px-4 py-10 flex items-center justify-center bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900">
+    <section className="w-full h-[100vh] px-4 py-10 flex items-center justify-center bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900">
       <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-950/80 p-8 shadow-[0_0_120px_rgba(0,0,0,0.45)] backdrop-blur-xl">
         <div className="mb-5 space-y-1">
           <div className="flex items-center gap-2 text-slate-400 mb-5">
