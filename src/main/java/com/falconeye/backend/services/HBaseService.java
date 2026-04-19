@@ -126,6 +126,11 @@ public class HBaseService {
         // Reuse our existing prefix scan method to get all events
         List<AcledEvent> events = getEventsByCountry(countryName);
 
+        // No events means the country doesn't exist in our data
+        if (events.isEmpty()) {
+            return null;
+        }
+
         int totalEvents = events.size();
         int totalFatalities = 0;
 

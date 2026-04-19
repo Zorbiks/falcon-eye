@@ -1,5 +1,6 @@
 package com.falconeye.backend.controllers;
 
+import com.falconeye.backend.dto.MessageResponse;
 import com.falconeye.backend.models.AcledEvent;
 import com.falconeye.backend.models.CountryStats;
 import com.falconeye.backend.services.HBaseService;
@@ -21,7 +22,7 @@ public class AcledEventController {
     // Based on the Data Contract in the Integration Guide
     @GetMapping("/country/{countryName}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')") // Both roles can view Intelligence
-    public ResponseEntity<List<AcledEvent>> getCountryEvents(@PathVariable String countryName) {
+    public ResponseEntity<?> getCountryEvents(@PathVariable String countryName) {
 
         // Capitalize the first letter just in case the frontend sends "algeria" instead
         // of "Algeria"
@@ -30,7 +31,7 @@ public class AcledEventController {
         List<AcledEvent> events = hbaseService.getEventsByCountry(formattedCountry);
 
         if (events.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(new MessageResponse("No events found for country: " + formattedCountry));
         }
 
         return ResponseEntity.ok(events);
@@ -39,7 +40,7 @@ public class AcledEventController {
     // Search Endpoint (Date Ranges)
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<AcledEvent>> searchEvents(
+    public ResponseEntity<?> searchEvents(
             @RequestParam String country,
             @RequestParam String startDate,
             @RequestParam String endDate,
@@ -53,18 +54,25 @@ public class AcledEventController {
         List<AcledEvent> events = hbaseService.searchEventsByDateRange(
                 formattedCountry, startDate, endDate, region, admin1, eventType, subEventType, disorderType);
 
-        if (events.isEmpty())
-            return ResponseEntity.noContent().build();
+        if (events.isEmpty()) {
+            return ResponseEntity.ok(new MessageResponse(
+                    "No events found for country: " + formattedCountry + " between " + startDate + " and " + endDate));
+        }
+
         return ResponseEntity.ok(events);
     }
 
     // Stats Dashboard Endpoint
     @GetMapping("/stats/{countryName}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<CountryStats> getStats(@PathVariable String countryName) {
+    public ResponseEntity<?> getStats(@PathVariable String countryName) {
 
         String formattedCountry = countryName.substring(0, 1).toUpperCase() + countryName.substring(1).toLowerCase();
         CountryStats stats = hbaseService.getCountryStats(formattedCountry);
+
+        if (stats == null) {
+            return ResponseEntity.ok(new MessageResponse("No statistics found for country: " + formattedCountry));
+        }
 
         return ResponseEntity.ok(stats);
     }
