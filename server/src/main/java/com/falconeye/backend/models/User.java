@@ -1,17 +1,13 @@
 package com.falconeye.backend.models;
-
+import java.time.LocalDateTime;
 import javax.persistence.*;
-
+import org.hibernate.annotations.CreationTimestamp;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Data
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
@@ -30,5 +26,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    
+    @Column(nullable = false)
+    private boolean active = true;
+
+    @CreationTimestamp
+    @Column(name = "joining_date", nullable = false, updatable = false)
+    private LocalDateTime joiningDate;
 }
