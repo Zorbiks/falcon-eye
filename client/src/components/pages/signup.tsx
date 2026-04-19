@@ -25,23 +25,23 @@ export default function SignupPage() {
   return (
     <section className="w-full min-h-[calc(100vh-64px)] px-4 py-10 flex items-center justify-center bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900">
       <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-950/80 p-8 shadow-[0_0_120px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-        <div className="mb-8 space-y-2">
-          <div className="flex items-center gap-2 text-slate-400">
+        <div className="mb-5 space-y-1">
+          <div className="flex items-center gap-2 text-slate-400 mb-5">
             <UserCircle size={18} className="text-emerald-500" />
-            <p className="text-xs font-semibold uppercase tracking-[0.24em]">New Operator</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em]">New Observer</p>
           </div>
           <h1 className="text-3xl font-black tracking-tight text-slate-100">Sign up</h1>
           <p className="text-sm text-slate-400">Create a secure account for your Falcon Eye workspace.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+            <div className="rounded-md border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
               {error}
             </div>
           )}
 
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="username" className="text-xs text-slate-400">
               Username
             </Label>
@@ -56,7 +56,7 @@ export default function SignupPage() {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="mb-10">
             <Label htmlFor="password" className="text-xs text-slate-400">
               Password
             </Label>
@@ -77,7 +77,7 @@ export default function SignupPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="h-11 w-full bg-emerald-600 text-white hover:bg-emerald-500"
+            className="h-11 w-full bg-emerald-600 text-white hover:bg-emerald-500 mb-4"
           >
             <CheckCircle size={16} className="mr-2" />
             {isLoading ? 'Creating account...' : 'Create account'}

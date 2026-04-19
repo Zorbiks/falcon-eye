@@ -119,45 +119,88 @@ function getAuthHeaders(token?: string) {
   }
 }
 
-async function requestJwt(path: string, body: AuthRequestBody) {
-  const response = await fetch(`${AUTH_API_BASE}/api/auth${path}`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(body),
-  })
+function getNetworkErrorMessage() {
+  return 'We could not connect to the sign-in service. Check your connection and try again.'
+}
 
-  const responseText = await response.text()
-
-  if (!response.ok) {
-    throw new Error(responseText || 'Authentication request failed.')
-  }
-
+function getLoginErrorMessage(responseText: string) {
   if (!responseText) {
-    return null
+    return 'We could not sign you in. Check your username and password, then try again.'
   }
 
+  return responseText
+}
+
+function getSignupErrorMessage(responseText: string) {
+  if (!responseText) {
+    return 'We could not create your account. Check your details and try again.'
+  }
+
+  return responseText
+}
+
+async function requestJwt(path: string, body: AuthRequestBody) {
   try {
-    return JSON.parse(responseText) as AuthResponse
+    const response = await fetch(`${AUTH_API_BASE}/api/auth${path}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(body),
+    })
+
+    const responseText = await response.text()
+
+    if (!response.ok) {
+      throw new Error(getLoginErrorMessage(responseText))
+    }
+
+    if (!responseText) {
+      return null
+    }
+
+    try {
+      return JSON.parse(responseText) as AuthResponse
+    } catch (error) {
+      console.error('Unable to parse auth response:', error)
+      throw new Error('We received an unexpected response from the server. Please try again.')
+    }
   } catch (error) {
-    console.error('Unable to parse auth response:', error)
-    throw new Error('Invalid authentication response.')
+    if (error instanceof Error && error.message !== getNetworkErrorMessage()) {
+      if (error.message === 'Failed to fetch' || error.message === 'NetworkError when attempting to fetch resource.') {
+        throw new Error(getNetworkErrorMessage())
+      }
+
+      throw error
+    }
+
+    throw new Error(getNetworkErrorMessage())
   }
 }
 
 async function requestRegistration(path: string, body: AuthRequestBody) {
-  const response = await fetch(`${AUTH_API_BASE}/api/auth${path}`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(body),
-  })
+  try {
+    const response = await fetch(`${AUTH_API_BASE}/api/auth${path}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(body),
+    })
 
-  const responseText = await response.text()
+    const responseText = await response.text()
 
-  if (!response.ok) {
-    throw new Error(responseText || 'Authentication request failed.')
+    if (!response.ok) {
+      throw new Error(getSignupErrorMessage(responseText))
+    }
+
+    return responseText
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message === 'Failed to fetch' || error.message === 'NetworkError when attempting to fetch resource.')
+    ) {
+      throw new Error(getNetworkErrorMessage())
+    }
+
+    throw error
   }
-
-  return responseText
 }
 
 function buildSession(token: string, username: string): AuthSession {
@@ -212,7 +255,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(buildSession(authResponse.jwt, username))
       return true
     } catch (authError) {
-      setError(authError instanceof Error ? authError.message : 'Unable to sign in.')
+      setError(authError instanceof Error ? authError.message : 'We could not sign you in. Please try again.')
       return false
     } finally {
       setIsLoading(false)
@@ -239,7 +282,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(buildSession(loginResponse.jwt, username))
       return true
     } catch (authError) {
-      setError(authError instanceof Error ? authError.message : 'Unable to create account.')
+      setError(authError instanceof Error ? authError.message : 'We could not create your account. Please try again.')
       return false
     } finally {
       setIsLoading(false)

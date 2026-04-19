@@ -45,7 +45,7 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Force all public registrations to be normal USERs.
+        // Default forced ROLE
         user.setRole(Role.USER);
 
         userRepository.save(user);
