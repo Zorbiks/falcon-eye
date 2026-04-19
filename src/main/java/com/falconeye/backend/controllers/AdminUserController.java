@@ -4,6 +4,7 @@ import com.falconeye.backend.dto.AdminUserRequest;
 import com.falconeye.backend.dto.MessageResponse;
 import com.falconeye.backend.dto.UserResponse;
 import com.falconeye.backend.models.User;
+import com.falconeye.backend.repositories.UserRepository;
 import com.falconeye.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +16,15 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin/users")
-@PreAuthorize("hasRole('ADMIN')") // Critical: Applies to ALL methods in this class
+@PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin(origins = "*")
 public class AdminUserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // View all users
     @GetMapping
@@ -32,9 +36,13 @@ public class AdminUserController {
         return ResponseEntity.ok(users);
     }
 
-    // 1. Admin creates a user and assigns an explicit Role
+    // Admin creates a user and assigns an explicit Role
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody AdminUserRequest request) {
+    public ResponseEntity<?> createUser(@RequestBody AdminUserRequest request) {
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            return ResponseEntity.status(409).body(new MessageResponse("Error: Username '" + request.getUsername() + "' is already taken."));
+        }
+
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
@@ -45,24 +53,32 @@ public class AdminUserController {
         return ResponseEntity.ok(new UserResponse(created));
     }
 
-    // 2. Admin deactivates a user
+    // Admin deactivates a user
     @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<UserResponse> deactivateUser(@PathVariable Long id) {
+    public ResponseEntity<?> deactivateUser(@PathVariable Long id) {
         User user = userService.toggleUserActiveStatus(id, false);
+        if (user == null) {
+            return ResponseEntity.status(404).body(new MessageResponse("Cannot deactivate: no user found with ID " + id));
+        }
         return ResponseEntity.ok(new UserResponse(user));
     }
 
-    // (Optional but recommended) Admin activates a previously deactivated user
+    // Admin activates a previously deactivated user
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<UserResponse> activateUser(@PathVariable Long id) {
+    public ResponseEntity<?> activateUser(@PathVariable Long id) {
         User user = userService.toggleUserActiveStatus(id, true);
+        if (user == null) {
+            return ResponseEntity.status(404).body(new MessageResponse("Cannot activate: no user found with ID " + id));
+        }
         return ResponseEntity.ok(new UserResponse(user));
     }
 
-    // 3. Admin strictly deletes a user from the database
+    // Admin strictly deletes a user from the database
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        if (!userService.deleteUser(id)) {
+            return ResponseEntity.status(404).body(new MessageResponse("User not found with ID: " + id));
+        }
         return ResponseEntity.ok(new MessageResponse("User deleted successfully"));
     }
 }

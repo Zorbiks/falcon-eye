@@ -28,14 +28,16 @@ public class UserService {
     }
 
     public User toggleUserActiveStatus(Long id, boolean active) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
-        
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) return null;
+
         user.setActive(active);
         return userRepository.save(user);
     }
 
-    public void deleteUser(Long id) {
+    public boolean deleteUser(Long id) {
+        if (!userRepository.existsById(id)) return false;
         userRepository.deleteById(id);
+        return true;
     }
 }
