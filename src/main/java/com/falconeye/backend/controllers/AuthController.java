@@ -2,6 +2,7 @@ package com.falconeye.backend.controllers;
 
 import com.falconeye.backend.dto.AuthRequest;
 import com.falconeye.backend.dto.AuthResponse;
+import com.falconeye.backend.dto.MessageResponse;
 import com.falconeye.backend.dto.RegisterRequest;
 import com.falconeye.backend.models.Role;
 import com.falconeye.backend.models.User;
@@ -38,27 +39,26 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Error: Username is already taken!");
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
 
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        // Force all public registrations to be normal USERs.
         user.setRole(Role.USER);
 
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully!");
+        
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Incorrect username or password");
+            return ResponseEntity.status(401).body(new MessageResponse("Incorrect username or password"));
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
