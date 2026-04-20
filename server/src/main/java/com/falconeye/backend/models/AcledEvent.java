@@ -1,14 +1,13 @@
 package com.falconeye.backend.models;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AcledEvent {
-    // e.g., "Algeria#01-April-2000#50.0"
     private String rowKey;
     private String week;
     private String region;
@@ -20,7 +19,7 @@ public class AcledEvent {
     private Double latitude;
     private Double longitude;
     private String disorderType;
-    
+
     public boolean isCritical() {
         return this.fatalities != null && this.fatalities > 5;
     }
