@@ -1,0 +1,102 @@
+[
+    {
+        "EVENT_TYPE": "Battles",
+        "SUB_EVENT_TYPE": "Armed clash"
+    },
+    {
+        "EVENT_TYPE": "Explosions/Remote violence",
+        "SUB_EVENT_TYPE": "Remote explosive/landmine/IED"
+    },
+    {
+        "EVENT_TYPE": "Explosions/Remote violence",
+        "SUB_EVENT_TYPE": "Suicide bomb"
+    },
+    {
+        "EVENT_TYPE": "Protests",
+        "SUB_EVENT_TYPE": "Peaceful protest"
+    },
+    {
+        "EVENT_TYPE": "Riots",
+        "SUB_EVENT_TYPE": "Mob violence"
+    },
+    {
+        "EVENT_TYPE": "Riots",
+        "SUB_EVENT_TYPE": "Violent demonstration"
+    },
+    {
+        "EVENT_TYPE": "Strategic developments",
+        "SUB_EVENT_TYPE": "Agreement"
+    },
+    {
+        "EVENT_TYPE": "Strategic developments",
+        "SUB_EVENT_TYPE": "Arrests"
+    },
+    {
+        "EVENT_TYPE": "Strategic developments",
+        "SUB_EVENT_TYPE": "Change to group/activity"
+    },
+    {
+        "EVENT_TYPE": "Strategic developments",
+        "SUB_EVENT_TYPE": "Disrupted weapons use"
+    },
+    {
+        "EVENT_TYPE": "Violence against civilians",
+        "SUB_EVENT_TYPE": "Attack"
+    },
+    {
+        "EVENT_TYPE": "Battles",
+        "SUB_EVENT_TYPE": "Government regains territory"
+    },
+    {
+        "EVENT_TYPE": "Explosions/Remote violence",
+        "SUB_EVENT_TYPE": "Air/drone strike"
+    },
+    {
+        "EVENT_TYPE": "Strategic developments",
+        "SUB_EVENT_TYPE": "Looting/property destruction"
+    },
+    {
+        "EVENT_TYPE": "Protests",
+        "SUB_EVENT_TYPE": "Protest with intervention"
+    },
+    {
+        "EVENT_TYPE": "Protests",
+        "SUB_EVENT_TYPE": "Excessive force against protesters"
+    },
+    {
+        "EVENT_TYPE": "Strategic developments",
+        "SUB_EVENT_TYPE": "Other"
+    },
+    {
+        "EVENT_TYPE": "Violence against civilians",
+        "SUB_EVENT_TYPE": "Abduction/forced disappearance"
+    },
+    {
+        "EVENT_TYPE": "Violence against civilians",
+        "SUB_EVENT_TYPE": "Sexual violence"
+    },
+    {
+        "EVENT_TYPE": "Explosions/Remote violence",
+        "SUB_EVENT_TYPE": "Shelling/artillery/missile attack"
+    },
+    {
+        "EVENT_TYPE": "Strategic developments",
+        "SUB_EVENT_TYPE": "Headquarters or base established"
+    },
+    {
+        "EVENT_TYPE": "Battles",
+        "SUB_EVENT_TYPE": "Non-state actor overtakes territory"
+    },
+    {
+        "EVENT_TYPE": "Explosions/Remote violence",
+        "SUB_EVENT_TYPE": "Grenade"
+    },
+    {
+        "EVENT_TYPE": "Strategic developments",
+        "SUB_EVENT_TYPE": "Non-violent transfer of territory"
+    },
+    {
+        "EVENT_TYPE": "Explosions/Remote violence",
+        "SUB_EVENT_TYPE": "Chemical weapon"
+    }
+]
