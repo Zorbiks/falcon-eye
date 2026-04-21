@@ -64,4 +64,27 @@
   body {
     @apply bg-background text-foreground overflow-y-auto;
   }
+
+  .custom-event-marker {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #ffffff; /* This white ring is the secret to the clean look */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .custom-event-marker svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+
+  /* Kills the default Leaflet gray square background */
+  .leaflet-div-icon {
+    background: transparent !important;
+    border: none !important;
+  }
 }

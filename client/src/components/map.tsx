@@ -1,16 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button } from './ui/button'
 import { Home, Expand, Minimize2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { Button } from './ui/button'
+import { useMapData } from 'src/context'
+import { getEventStyle } from 'src/utils/getEventStyle'
+import { createCustomIcon } from 'src/utils/createCustomIcon'
 
 export default function MainMap() {
+  const { events } = useMapData()
+
   const containerRef = useRef<HTMLDivElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
 
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(document.fullscreenElement === containerRef.current)
-      // Ensure Leaflet recalculates dimensions after fullscreen transition.
       setTimeout(() => window.dispatchEvent(new Event('resize')), 0)
     }
 
@@ -35,7 +39,7 @@ export default function MainMap() {
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto flex h-[600px] w-[95%] flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-950 fullscreen:w-full fullscreen:h-full"
+      className="relative mx-auto flex h-[700px] w-[95%] flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-950 fullscreen:w-full fullscreen:h-full"
     >
       <div className="w-full border-b border-slate-800 bg-slate-900/85 px-5 py-4 pt-5 flex justify-between">
         <h1 className="text-[20px] text-slate-100 font-bold">Conflict Map</h1>
@@ -71,11 +75,29 @@ export default function MainMap() {
           attributionControl={false}
         >
           <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-          <Marker position={[51.505, -0.09]}>
-            <Popup>
-              A pretty CSS3 popup. <br /> Easily customizable.
-            </Popup>
-          </Marker>
+          {events.map((event) => {
+            const style = getEventStyle(event.eventType, event.subEventType)
+            const icon = createCustomIcon(style)
+
+            return (
+              <Marker key={event.rowKey} position={[event.latitude, event.longitude]} icon={icon}>
+                <Popup>
+                  <div className="popup-content">
+                    <h3>{event.subEventType}</h3>
+                    <p>
+                      <b>Location:</b> {event.admin1}, {event.country}
+                    </p>
+                    <p>
+                      <b>Fatalities:</b> {event.fatalities}
+                    </p>
+                    <p>
+                      <b>Date:</b> {event.week}
+                    </p>
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          })}
         </MapContainer>
       </div>
 
