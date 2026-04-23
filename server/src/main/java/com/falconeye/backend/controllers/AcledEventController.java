@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,32 +37,42 @@ public class AcledEventController {
     }
 
     /**
-     * Search endpoint with condensed parameters.
-     * Optional: country, startDate, endDate (YYYY-MM-DD)
+     * Search endpoint — returns all events for a given year and month.
+     * Required: year (e.g. 2015), month (1–12)
+     * Optional: country
+     *
+     * Example: GET /api/events/search?year=2015&month=12
+     * Example: GET /api/events/search?year=2015&month=12&country=israel
      */
-@GetMapping("/search")
+    @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> searchEvents(
-            @RequestParam(required = false) String country,
-            @RequestParam(required = false) String start_date,
-            @RequestParam(required = false) String end_date) {
+            @RequestParam(required = true) Integer year,
+            @RequestParam(required = true) Integer month,
+            @RequestParam(required = false) String country) {
 
-        // 1. Dynamically calculate the last 30 days OF THE ACTUAL DATA
-        if (start_date == null && end_date == null) {
-            LocalDate latestDbDate = hbaseService.getLatestDateInDatabase();
-            end_date = latestDbDate.toString();                  
-            start_date = latestDbDate.minusDays(30).toString();  
-        } 
-        // 2. Prevent incomplete date searches
-        else if (start_date == null || end_date == null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Both start_date and end_date must be provided together."));
+        // 1. Validate month range
+        if (month < 1 || month > 12) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: month must be between 1 and 12."));
         }
 
-        // 3. Format the country name (e.g., "mauritania" -> "Mauritania")
+        // 2. Validate year range
+        if (year < 1900 || year > 2100) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: year value is out of valid range."));
+        }
+
+        // 3. Derive the full date range for the requested month
+        YearMonth yearMonth = YearMonth.of(year, month);
+        String startDate = yearMonth.atDay(1).toString();        // e.g. "2015-12-01"
+        String endDate   = yearMonth.atEndOfMonth().toString();  // e.g. "2015-12-31"
+
+        // 4. Format the country name (e.g., "mauritania" -> "Mauritania")
         String formattedCountry = (country != null && !country.isBlank()) ? titleCase(country) : null;
 
-        // 4. Pass the parameters directly to your HBase service
-        List<AcledEvent> events = hbaseService.searchEvents(formattedCountry, start_date, end_date);
+        // 5. Delegate to HBase service
+        List<AcledEvent> events = hbaseService.searchEvents(formattedCountry, startDate, endDate);
 
         if (events.isEmpty()) {
             return ResponseEntity.ok(new MessageResponse("No events found for the given search criteria."));
@@ -71,7 +81,6 @@ public class AcledEventController {
         return ResponseEntity.ok(events);
     }
 
-    
     // GET /api/events/stats/{countryName}
     @GetMapping("/stats/{countryName}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
