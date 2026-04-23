@@ -34,19 +34,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
+            /*
+             * BUG FIX: The original code let jwtUtil.extractUsername() throw uncaught
+             * exceptions (expired token, malformed JWT, invalid signature) which propagated
+             * as HTTP 500 errors instead of simply treating the request as unauthenticated.
+             * Now any parsing error is caught and the filter continues the chain without
+             * setting an authentication — Spring Security will then return 401 as expected.
+             */
+            try {
+                username = jwtUtil.extractUsername(jwt);
+            } catch (Exception e) {
+                // Invalid / expired / malformed token — leave username null so the request
+                // proceeds as unauthenticated. Spring Security will handle the 401.
+                logger.warn("JWT parsing failed: " + e.getMessage());
+            }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            try {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtUtil.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception e) {
+                // User may have been deleted between token issuance and this request.
+                // Treat as unauthenticated.
+                logger.warn("Could not authenticate user '" + username + "': " + e.getMessage());
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }

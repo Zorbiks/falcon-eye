@@ -4,10 +4,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +19,26 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // Generate a secure key for HS256 algorithm
-    private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    /**
+     * Secret is read from application.properties (jwt.secret).
+     * It must be a Base64-encoded string of at least 32 random bytes.
+     * Generate one with: openssl rand -base64 32
+     *
+     * Note: getMimeDecoder() is used instead of getDecoder() because the standard
+     * decoder rejects Base64 strings whose padding character ('=') is present —
+     * which is the default output of openssl and most generators.
+     */
+    @Value("${jwt.secret}")
+    private String secretBase64;
+
+    private Key SECRET_KEY;
+
+    @PostConstruct
+    public void init() {
+        // getMimeDecoder tolerates padding and line-breaks that getDecoder() rejects
+        byte[] keyBytes = Base64.getMimeDecoder().decode(secretBase64);
+        this.SECRET_KEY = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

@@ -16,3 +16,6 @@ hbase.zookeeper.property.clientPort=
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+# JWT Configuration
+# Generate a secure value with: openssl rand -base64 32
+jwt.secret=
