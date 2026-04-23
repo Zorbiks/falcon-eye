@@ -2,7 +2,6 @@ package com.falconeye.backend.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,16 +17,6 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-
-    /**
-     * Secret is read from application.properties (jwt.secret).
-     * It must be a Base64-encoded string of at least 32 random bytes.
-     * Generate one with: openssl rand -base64 32
-     *
-     * Note: getMimeDecoder() is used instead of getDecoder() because the standard
-     * decoder rejects Base64 strings whose padding character ('=') is present —
-     * which is the default output of openssl and most generators.
-     */
     @Value("${jwt.secret}")
     private String secretBase64;
 

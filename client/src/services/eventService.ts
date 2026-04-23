@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { AcledEvent, FetchEventsByDateRangeParams } from '../types/events'
-import data from 'src/data/mock.json'
+import data from 'src/data/event-mock.json'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
