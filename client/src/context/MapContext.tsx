@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { fetchAllEvents } from '../services/eventService'
 import type { AcledEvent } from '../types/events'
-import mockData from 'src/data/mock.json'
+import mockData from 'src/data/event-mock.json'
 
 type MapContextValue = {
   events: AcledEvent[]
