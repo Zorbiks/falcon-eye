@@ -2,15 +2,19 @@ import { useEffect, useRef, useState } from 'react'
 import { Home, Expand, Minimize2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { Button } from './ui/button'
+import { Badge } from './ui/badge'
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from './ui/drawer'
 import { useGlobalData } from 'src/context'
 import { getEventStyle } from 'src/utils/getEventStyle'
 import { createCustomIcon } from 'src/utils/createCustomIcon'
+import type { AcledEvent } from 'src/types/events'
 
 export default function MainMap() {
   const { events } = useGlobalData()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<AcledEvent | null>(null)
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -41,6 +45,92 @@ export default function MainMap() {
       ref={containerRef}
       className="relative mx-auto flex h-[700px] w-[95%] flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-950 fullscreen:w-full fullscreen:h-full"
     >
+      <Drawer
+        open={Boolean(selectedEvent)}
+        onOpenChange={(open: boolean) => !open && setSelectedEvent(null)}
+        direction="right"
+      >
+        <DrawerContent className="inset-y-0 right-0 left-auto mt-0 h-full w-full max-w-[420px] gap-0 overflow-hidden rounded-none border-l border-slate-800 border-t-0 bg-slate-950 p-0 font-sans text-slate-100 antialiased shadow-2xl sm:max-w-[420px] [&>div:first-child]:hidden">
+          {selectedEvent ? (
+            <div className="flex h-full flex-col">
+              <div className="border-b border-slate-800 px-1 py-4">
+                <DrawerHeader className="space-y-3 text-left">
+                  <DrawerTitle className="text-balance text-xl font-semibold leading-tight tracking-tight text-slate-50">
+                    {selectedEvent.eventType}
+                  </DrawerTitle>
+
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      style={{
+                        color: getEventStyle(selectedEvent.eventType, selectedEvent.subEventType).color,
+                        borderColor: getEventStyle(selectedEvent.eventType, selectedEvent.subEventType).color,
+                        backgroundColor:
+                          getEventStyle(selectedEvent.eventType, selectedEvent.subEventType).color + '15',
+                      }}
+                    >
+                      {selectedEvent.subEventType}
+                    </Badge>
+                  </div>
+
+                  <DrawerDescription className="text-sm text-slate-400">
+                    {selectedEvent.admin1}, {selectedEvent.country}
+                  </DrawerDescription>
+                </DrawerHeader>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-5 py-5 no-scrollbar">
+                <div className="mb-6 grid gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Event Type</span>
+                    <span className="font-medium text-slate-200">{selectedEvent.eventType}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Sub Type</span>
+                    <span className="font-medium text-slate-200">{selectedEvent.subEventType}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Fatalities</span>
+                    <span className="font-mono text-sm font-bold text-red-500">{selectedEvent.fatalities}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Date</span>
+                    <span className="font-mono text-xs text-slate-200">{selectedEvent.week}</span>
+                  </div>
+                </div>
+
+                <div className="mb-6 grid gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Location</span>
+                    <span className="font-medium text-slate-200">{selectedEvent.admin1}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Country</span>
+                    <span className="font-medium text-slate-200">{selectedEvent.country}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Coordinates</span>
+                    <span className="font-mono text-xs text-slate-300">
+                      {selectedEvent.latitude.toFixed(4)}, {selectedEvent.longitude.toFixed(4)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-auto border-t border-slate-800 bg-slate-950/95 px-5 py-4 backdrop-blur-sm">
+                <Button
+                  variant="outline"
+                  className="w-full border-slate-700 bg-transparent text-slate-200 hover:bg-slate-900"
+                  onClick={() => setSelectedEvent(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </DrawerContent>
+      </Drawer>
+
       <div className="w-full border-b border-slate-800 bg-slate-900/85 px-5 py-4 pt-5 flex justify-between">
         <h1 className="text-[20px] text-slate-100 font-bold">Conflict Map</h1>
 
@@ -80,22 +170,14 @@ export default function MainMap() {
             const icon = createCustomIcon(style)
 
             return (
-              <Marker key={event.rowKey} position={[event.latitude, event.longitude]} icon={icon}>
-                <Popup>
-                  <div className="popup-content">
-                    <h3>{event.subEventType}</h3>
-                    <p>
-                      <b>Location:</b> {event.admin1}, {event.country}
-                    </p>
-                    <p>
-                      <b>Fatalities:</b> {event.fatalities}
-                    </p>
-                    <p>
-                      <b>Date:</b> {event.week}
-                    </p>
-                  </div>
-                </Popup>
-              </Marker>
+              <Marker
+                key={event.rowKey}
+                position={[event.latitude, event.longitude]}
+                icon={icon}
+                eventHandlers={{
+                  click: () => setSelectedEvent(event),
+                }}
+              />
             )
           })}
         </MapContainer>
