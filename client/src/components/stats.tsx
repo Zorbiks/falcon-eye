@@ -2,18 +2,7 @@ import { ChevronRight, ChevronDown } from 'lucide-react'
 import { ReactElement, useMemo } from 'react'
 import eventThemeRegistry from '../data/eventThemeRegistry.json'
 import { useGlobalData } from '../context'
-
-type EventTheme = {
-  icon: string
-  color: string
-}
-
-type CategoryStat = {
-  name: string
-  percentage: number
-  count: number
-  color: string
-}
+import type { CategoryStat, EventTheme } from '../types/categories'
 
 const rawThemes = eventThemeRegistry as Record<string, EventTheme>
 const categoryColorMap = Object.entries(rawThemes)
@@ -45,7 +34,7 @@ export default function StatsCard() {
       const key = eventType && subEventType ? `${eventType}|${subEventType}` : ''
       const isMapped = Boolean(key && rawThemes[key])
       const category = isMapped && eventType ? eventType : 'Other'
-      const eventCount = Number.isFinite(event.events) && event.events > 0 ? event.events : 1
+      const eventCount = 1
 
       countsByCategory[category] = (countsByCategory[category] ?? 0) + eventCount
       total += eventCount

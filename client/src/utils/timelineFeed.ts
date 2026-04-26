@@ -33,6 +33,22 @@ export const getRelativeTime = (publishedAt: string): string => {
   return `${days} day${days > 1 ? 's' : ''} ago`
 }
 
+export const formatPublishedDate = (publishedAt: string): string => {
+  const published = new Date(publishedAt)
+
+  if (Number.isNaN(published.getTime())) {
+    return publishedAt
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(published)
+}
+
 const getCombinedText = (title: string, description?: string) => `${title} ${description ?? ''}`.toLowerCase()
 
 export const getTimelineTopic = (title: string, description?: string): TimelineTopic => {
@@ -140,4 +156,14 @@ export const getTimelineSourceStyle = (source: string): TimelineTagStyle => {
     bgColor: 'bg-cyan-500/10',
     borderColor: 'border-cyan-500/50',
   }
+}
+
+export const getColorHex = (colorClass: string): string => {
+  const colorMap: Record<string, string> = {
+    'text-emerald-400': '#34d399',
+    'bg-emerald-400': '#34d399',
+    'text-cyan-400': '#22d3ee',
+    'bg-cyan-400': '#22d3ee',
+  }
+  return colorMap[colorClass] || '#22d3ee'
 }

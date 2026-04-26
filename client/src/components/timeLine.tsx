@@ -2,10 +2,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { useGlobalData } from '../context'
 import type { FeedCard } from '../types/feed'
-import { getRelativeTime, getTimelineSeverity, getTimelineSourceStyle, getTimelineTopic } from '../utils/timelineFeed'
+import {
+  formatPublishedDate,
+  getColorHex,
+  getRelativeTime,
+  getTimelineSeverity,
+  getTimelineSourceStyle,
+  getTimelineTopic,
+} from '../utils/timelineFeed'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from './ui/drawer'
 
 export default function TimelineFeed() {
   const { feedData } = useGlobalData()
@@ -48,15 +55,23 @@ export default function TimelineFeed() {
   }, [feedEvents, currentPage])
   const startItem = feedEvents.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
   const endItem = Math.min(feedEvents.length, currentPage * itemsPerPage)
+  const selectedPublishedDate = useMemo(
+    () => (selectedEvent ? formatPublishedDate(selectedEvent.publishedAt) : ''),
+    [selectedEvent],
+  )
 
   return (
     <>
-      <Dialog open={Boolean(selectedEvent)} onOpenChange={(open: boolean) => !open && setSelectedEvent(null)}>
-        <DialogContent className="fixed right-0 top-0 z-50 h-full w-full max-w-[420px] translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-none border-l border-slate-800 bg-slate-950 p-0 text-slate-100 shadow-2xl sm:max-w-[420px] sm:rounded-none">
+      <Drawer
+        open={Boolean(selectedEvent)}
+        onOpenChange={(open: boolean) => !open && setSelectedEvent(null)}
+        direction="right"
+      >
+        <DrawerContent className="inset-y-0 right-0 left-auto mt-0 h-full w-full max-w-[420px] gap-0 overflow-hidden rounded-none border-l border-slate-800 border-t-0 bg-slate-950 p-0 font-sans text-slate-100 antialiased shadow-2xl sm:max-w-[420px] [&>div:first-child]:hidden">
           {selectedEvent ? (
             <div className="flex h-full flex-col">
               <div className="border-b border-slate-800 px-5 py-4">
-                <DialogHeader className="space-y-3 text-left">
+                <DrawerHeader className="space-y-3 text-left">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="border-sky-500/40 bg-sky-500/10 text-sky-300">
                       {selectedTopicLabel}
@@ -65,13 +80,13 @@ export default function TimelineFeed() {
                       Sev {selectedEvent.severity}/10
                     </Badge>
                   </div>
-                  <DialogTitle className="text-balance text-xl leading-tight text-slate-50">
+                  <DrawerTitle className="text-balance text-xl font-semibold leading-tight tracking-tight text-slate-50">
                     {selectedEvent.title}
-                  </DialogTitle>
-                  <DialogDescription className="text-sm text-slate-400">
+                  </DrawerTitle>
+                  <DrawerDescription className="text-sm text-slate-400">
                     {selectedEvent.sourceLabel} · {selectedEvent.publishedLabel}
-                  </DialogDescription>
-                </DialogHeader>
+                  </DrawerDescription>
+                </DrawerHeader>
               </div>
 
               <div className="flex-1 overflow-y-auto px-5 py-5 no-scrollbar">
@@ -84,9 +99,11 @@ export default function TimelineFeed() {
                       {[...Array(10)].map((_, index) => (
                         <div
                           key={index}
-                          className={`h-1.5 w-3 rounded-full ${
-                            index < selectedEvent.severity ? selectedEvent.color.replace('text', 'bg') : 'bg-slate-800'
-                          }`}
+                          className="h-1.5 w-3 rounded-full"
+                          style={{
+                            backgroundColor:
+                              index < selectedEvent.severity ? getColorHex(selectedEvent.color) : '#1e293b',
+                          }}
                         />
                       ))}
                     </div>
@@ -108,10 +125,12 @@ export default function TimelineFeed() {
                   </div>
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-slate-500">Published</span>
-                    <span className="font-medium text-slate-200">{selectedEvent.publishedAt}</span>
+                    <span className="font-mono text-xs text-slate-200">{selectedPublishedDate}</span>
                   </div>
                 </div>
+              </div>
 
+              <div className="mt-auto border-t border-slate-800 bg-slate-950/95 px-5 py-4 backdrop-blur-sm">
                 <div className="flex flex-col gap-3">
                   <Button asChild className="w-full bg-sky-500 text-slate-950 hover:bg-sky-400">
                     <a href={selectedEvent.link} target="_blank" rel="noreferrer">
@@ -130,8 +149,8 @@ export default function TimelineFeed() {
               </div>
             </div>
           ) : null}
-        </DialogContent>
-      </Dialog>
+        </DrawerContent>
+      </Drawer>
 
       <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 h-full overflow-y-auto no-scrollbar flex-1">
         <div className="flex justify-between items-center mb-6">
@@ -177,9 +196,10 @@ export default function TimelineFeed() {
                       {[...Array(10)].map((_, i) => (
                         <div
                           key={i}
-                          className={`h-1.5 w-3 rounded-full ${
-                            i < event.severity ? event.color.replace('text', 'bg') : 'bg-slate-700'
-                          }`}
+                          className="h-1.5 w-3 rounded-full"
+                          style={{
+                            backgroundColor: i < event.severity ? getColorHex(event.color) : '#3f3f46',
+                          }}
                         />
                       ))}
                     </div>
