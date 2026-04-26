@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Home, Expand, Minimize2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { Button } from './ui/button'
-import { useMapData } from 'src/context'
+import { useGlobalData } from 'src/context'
 import { getEventStyle } from 'src/utils/getEventStyle'
 import { createCustomIcon } from 'src/utils/createCustomIcon'
 
 export default function MainMap() {
-  const { events } = useMapData()
+  const { events } = useGlobalData()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)

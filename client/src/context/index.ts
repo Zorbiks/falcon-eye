@@ -1,2 +1,2 @@
-export * from './MapContext'
+export * from './GlobalContext'
 export * from './AuthContext'

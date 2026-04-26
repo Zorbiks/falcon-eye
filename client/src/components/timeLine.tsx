@@ -1,54 +1,53 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
-import { fetchNewsFeed } from '../services/feedService'
-import type { FeedItem } from '../types/feed'
+import { useGlobalData } from '../context'
+import type { FeedCard } from '../types/feed'
 import { getRelativeTime, getTimelineSeverity, getTimelineSourceStyle, getTimelineTopic } from '../utils/timelineFeed'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
 
-type FeedCard = FeedItem & {
-  sourceLabel: string
-  publishedLabel: string
-  topic: string
-  severity: number
-  color: string
-  bgColor: string
-  borderColor: string
-}
-
 export default function TimelineFeed() {
-  const [feedEvents, setFeedEvents] = useState<FeedCard[]>([])
+  const { feedData } = useGlobalData()
   const [selectedEvent, setSelectedEvent] = useState<FeedCard | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
+
+  const feedEvents = useMemo<FeedCard[]>(() => {
+    return feedData.map((item) => {
+      const style = getTimelineSourceStyle(item.source)
+      const topic = getTimelineTopic(item.title, item.description)
+
+      return {
+        ...item,
+        title: item.title,
+        sourceLabel: item.source,
+        description: item.description,
+        publishedLabel: getRelativeTime(item.publishedAt),
+        topic,
+        severity: getTimelineSeverity(item.title, item.description),
+        color: style.color,
+        bgColor: style.bgColor,
+        borderColor: style.borderColor,
+      }
+    })
+  }, [feedData])
 
   useEffect(() => {
-    const loadFeed = async () => {
-      const feedItems: FeedItem[] = await fetchNewsFeed()
-      const mappedEvents = feedItems.map((item) => {
-        const style = getTimelineSourceStyle(item.source)
-        const topic = getTimelineTopic(item.title, item.description)
-
-        return {
-          ...item,
-          title: item.title,
-          sourceLabel: item.source,
-          description: item.description,
-          publishedLabel: getRelativeTime(item.publishedAt),
-          topic,
-          severity: getTimelineSeverity(item.title, item.description),
-          color: style.color,
-          bgColor: style.bgColor,
-          borderColor: style.borderColor,
-        }
-      })
-
-      setFeedEvents(mappedEvents)
+    const totalPages = Math.max(1, Math.ceil(feedEvents.length / itemsPerPage))
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
     }
-
-    void loadFeed()
-  }, [])
+  }, [feedEvents, currentPage])
 
   const selectedTopicLabel = useMemo(() => selectedEvent?.topic ?? 'General', [selectedEvent])
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(feedEvents.length / itemsPerPage)), [feedEvents.length])
+  const paginatedEvents = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return feedEvents.slice(start, start + itemsPerPage)
+  }, [feedEvents, currentPage])
+  const startItem = feedEvents.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
+  const endItem = Math.min(feedEvents.length, currentPage * itemsPerPage)
 
   return (
     <>
@@ -142,9 +141,9 @@ export default function TimelineFeed() {
         </div>
 
         <div className="space-y-6">
-          {feedEvents.map((event, i) => (
+          {paginatedEvents.map((event, i) => (
             <button
-              key={i}
+              key={`${event.link}-${i}`}
               type="button"
               onClick={() => setSelectedEvent(event)}
               className="group relative block w-full rounded-lg pl-6 pr-2 pt-0 text-left border-l border-slate-800 pb-2 transition-colors hover:bg-slate-900/40"
@@ -189,6 +188,35 @@ export default function TimelineFeed() {
               </div>
             </button>
           ))}
+        </div>
+
+        <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-4 text-[11px] text-slate-400">
+          <span>
+            Showing {startItem}-{endItem} of {feedEvents.length}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-slate-700 bg-transparent text-slate-200 hover:bg-slate-900"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            >
+              Previous
+            </Button>
+            <span className="text-slate-300">
+              Page {currentPage}/{totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-slate-700 bg-transparent text-slate-200 hover:bg-slate-900"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </>
