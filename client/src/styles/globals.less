@@ -55,6 +55,30 @@
     font-size: 110%;
   }
 
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #334155 #020617;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #020617;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    border: 2px solid #020617;
+    background: linear-gradient(180deg, #475569, #334155);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #64748b, #475569);
+  }
+
   html,
   body,
   #root {
