@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { Home, Expand, Minimize2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { Button } from './ui/button'
@@ -15,6 +15,16 @@ export default function MainMap() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<AcledEvent | null>(null)
+
+  const legendItems = useMemo(() => {
+    const uniqueSubTypes = new Map<string, AcledEvent>()
+    events.forEach((event) => {
+      if (!uniqueSubTypes.has(event.subEventType)) {
+        uniqueSubTypes.set(event.subEventType, event)
+      }
+    })
+    return Array.from(uniqueSubTypes.values()).sort((a, b) => a.subEventType.localeCompare(b.subEventType))
+  }, [events])
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -184,9 +194,20 @@ export default function MainMap() {
       </div>
 
       <div className="absolute left-0 bottom-2 z-[1000] ml-3 pointer-events-none">
-        <div className="bg-slate-900/90 border border-slate-700 p-3 backdrop-blur-sm shadow-2xl">
-          <div className="flex flex-col gap-1 font-mono">
-            <p className="text-[10px] text-emerald-500 font-bold tracking-widest">LEGEND</p>
+        <div className="bg-slate-900/90 border border-slate-700 p-4 backdrop-blur-sm shadow-2xl rounded-lg max-h-[400px] overflow-y-auto">
+          <div className="flex flex-col gap-2 font-mono">
+            <p className="text-[10px] text-emerald-500 font-bold tracking-widest mb-2">LEGEND</p>
+            <div className="flex flex-col gap-1.5 text-[9px] text-slate-300">
+              {legendItems.map((event) => {
+                const style = getEventStyle(event.eventType, event.subEventType)
+                return (
+                  <div key={event.subEventType} className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: style.color }} />
+                    <span className="truncate">{event.subEventType}</span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>

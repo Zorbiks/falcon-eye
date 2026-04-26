@@ -1,8 +1,35 @@
-import { ChevronRight, ChevronDown } from 'lucide-react'
-import { ReactElement, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import eventThemeRegistry from '../data/eventThemeRegistry.json'
 import { useGlobalData } from '../context'
 import type { CategoryStat, EventTheme } from '../types/categories'
+
+const SOURCE_GROUP_ORDER = [
+  'Western Media',
+  'Regional Media',
+  'Iranian Perspective',
+  'Official / Primary',
+  'OSINT / Analysis',
+] as const
+
+const SOURCE_GROUP_MAP: Record<string, (typeof SOURCE_GROUP_ORDER)[number]> = {
+  'The Guardian': 'Western Media',
+  'Al Jazeera': 'Regional Media',
+  ACLED: 'Official / Primary',
+  'Iran International': 'Iranian Perspective',
+  'Tehran Times': 'Iranian Perspective',
+  'Press TV': 'Iranian Perspective',
+  'Middle East Eye': 'Regional Media',
+  'Jerusalem Post': 'Regional Media',
+  'Anadolu Agency': 'Regional Media',
+  'Arab News': 'Regional Media',
+  'UN News Middle East': 'Official / Primary',
+  'US DoD News': 'Official / Primary',
+  'UN Security Council': 'Official / Primary',
+  'Atlantic Council': 'OSINT / Analysis',
+  'Arms Control Association': 'OSINT / Analysis',
+  Bellingcat: 'OSINT / Analysis',
+  'Long War Journal': 'OSINT / Analysis',
+}
 
 const rawThemes = eventThemeRegistry as Record<string, EventTheme>
 const categoryColorMap = Object.entries(rawThemes)
@@ -22,7 +49,8 @@ const registryCategories = Object.keys(categoryColorMap)
 const DEFAULT_CATEGORY_COLOR = rawThemes.default?.color ?? '#7F8C8D'
 
 export default function StatsCard() {
-  const { events } = useGlobalData()
+  const { events, feedData } = useGlobalData()
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
 
   const { categoryStats, totalEvents } = useMemo(() => {
     const countsByCategory: Record<string, number> = { Other: 0 }
@@ -74,6 +102,51 @@ export default function StatsCard() {
     }
   }, [events])
 
+  const groupedSources = useMemo(() => {
+    const uniqueSources = new Set<string>()
+
+    feedData.forEach((item) => {
+      const sourceName = item.source?.trim()
+      if (sourceName) {
+        uniqueSources.add(sourceName)
+      }
+    })
+
+    if (events.length > 0) {
+      uniqueSources.add('ACLED')
+    }
+
+    const groups = new Map<string, string[]>()
+
+    SOURCE_GROUP_ORDER.forEach((group) => groups.set(group, []))
+
+    Array.from(uniqueSources)
+      .sort((a, b) => a.localeCompare(b))
+      .forEach((sourceName) => {
+        const group = SOURCE_GROUP_MAP[sourceName] ?? 'Regional Media'
+        groups.get(group)?.push(sourceName)
+      })
+
+    return SOURCE_GROUP_ORDER.map((groupName) => ({
+      groupName,
+      sources: groups.get(groupName) ?? [],
+    })).filter((group) => group.sources.length > 0)
+  }, [events.length, feedData])
+
+  const totalSources = useMemo(
+    () => groupedSources.reduce((total, group) => total + group.sources.length, 0),
+    [groupedSources],
+  )
+
+  const isGroupOpen = (groupName: string) => openGroups[groupName] ?? true
+
+  const toggleGroup = (groupName: string) => {
+    setOpenGroups((prev) => ({
+      ...prev,
+      [groupName]: !(prev[groupName] ?? true),
+    }))
+  }
+
   return (
     <div className="flex flex-col gap-4 h-full min-w-[500px]">
       <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 shadow-2xl">
@@ -106,57 +179,46 @@ export default function StatsCard() {
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-slate-200 text-xs font-semibold uppercase tracking-wider">Sources</h3>
           <span className="text-[10px] text-slate-300 font-mono">
-            <span className="text-emerald-500">23</span>/24 <span className="text-orange-500 ml-1">(1 idle)</span>
+            <span className="text-emerald-500">{totalSources}</span> SOURCES
+            <span className="text-slate-400 ml-2">
+              ({feedData.length} feed + {events.length} ACLED events)
+            </span>
           </span>
         </div>
 
-        <div className="space-y-3 text-[11px]">
-          <SourceItem label="News" count="13/14" icon={<ChevronRight size={14} />} status="orange" />
-          <div className="space-y-2">
-            <SourceItem label="Analysis" count="2/2" icon={<ChevronDown size={14} />} active />
-            <div className="ml-6 space-y-2 text-slate-300 border-l border-slate-800 pl-3">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Arms Control Association
+        <div className="space-y-4 text-[11px]">
+          {groupedSources.map((group) => (
+            <div key={group.groupName} className="space-y-2">
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.groupName)}
+                className="flex w-full items-center gap-2 text-left text-slate-100 font-semibold"
+                aria-expanded={isGroupOpen(group.groupName)}
+                aria-label={`Toggle ${group.groupName} sources`}
+              >
+                <span className="text-slate-400">{isGroupOpen(group.groupName) ? '⌄' : '›'}</span>
+                <span>{group.groupName}</span>
+                {group.groupName === 'Western Media' ? (
+                  <div className="h-1.5 w-1.5 rounded-full bg-orange-500 shadow-[0_0_5px_#f97316]" />
+                ) : null}
+              </button>
+
+              {isGroupOpen(group.groupName) ? (
+                <div className="ml-4 border-l border-slate-800 pl-4 space-y-2 text-slate-300">
+                  {group.sources.map((sourceName) => (
+                    <div key={sourceName} className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
+                      <span>{sourceName}</span>
+                    </div>
+                  ))}
                 </div>
-                <span>1 day ago</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> The War Zone
-                </div>
-                <span>21 hours ago</span>
-              </div>
+              ) : null}
             </div>
-          </div>
-          <SourceItem label="Regional Media" count="8/8" icon={<ChevronRight size={14} />} />
+          ))}
+
+          {groupedSources.length === 0 ? <div className="text-slate-400">No sources available</div> : null}
         </div>
       </div>
-    </div>
-  )
-}
-
-function SourceItem({
-  label,
-  count,
-  icon,
-  status = 'green',
-  active = false,
-}: {
-  label: string
-  count: string
-  icon: ReactElement
-  status?: string
-  active?: boolean
-}) {
-  return (
-    <div className={`flex justify-between items-center ${active ? 'text-slate-100' : 'text-slate-300'}`}>
-      <div className="flex items-center gap-2">
-        {icon}
-        <span>{label}</span>
-        {status === 'orange' && <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_5px_#f97316]" />}
-      </div>
-      <span className="font-mono opacity-60">{count}</span>
     </div>
   )
 }
