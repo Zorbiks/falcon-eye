@@ -6,7 +6,6 @@ import com.falconeye.backend.models.CountryStats;
 import com.falconeye.backend.services.HBaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
@@ -24,7 +23,6 @@ public class AcledEventController {
 
     // GET /api/events/country/{countryName}
     @GetMapping("/country/{countryName}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getCountryEvents(@PathVariable String countryName) {
         String formattedCountry = titleCase(countryName);
         List<AcledEvent> events = hbaseService.getEventsByCountry(formattedCountry);
@@ -45,7 +43,6 @@ public class AcledEventController {
      * Example: GET /api/events/search?year=2015&month=12&country=israel
      */
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> searchEvents(
             @RequestParam(required = true) Integer year,
             @RequestParam(required = true) Integer month,
@@ -83,7 +80,6 @@ public class AcledEventController {
 
     // GET /api/events/stats/{countryName}
     @GetMapping("/stats/{countryName}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getStats(@PathVariable String countryName) {
         String formattedCountry = titleCase(countryName);
         CountryStats stats = hbaseService.getCountryStats(formattedCountry);

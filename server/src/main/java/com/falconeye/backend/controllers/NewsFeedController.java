@@ -4,7 +4,6 @@ import com.falconeye.backend.dto.NewsItem;
 import com.falconeye.backend.services.RssFeedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +11,8 @@ import java.util.List;
 /**
  * REST endpoint for the news feed.
  *
- * All routes under /api/news require a valid JWT token (enforced by the global
- * SecurityConfig + JwtAuthenticationFilter). The @PreAuthorize annotation adds
- * an explicit role check on top of that, consistent with the rest of the API.
+ * GET /api/news/feed is publicly accessible — no authentication required.
+ * Guests can browse the news feed without logging in.
  *
  * GET /api/news/feed
  *   Returns a JSON array of news items from all registered RSS sources,
@@ -43,10 +41,9 @@ public class NewsFeedController {
 
     /**
      * Fetch and return the merged, date-sorted news feed.
-     * Accessible to both ADMIN and USER roles.
+     * Publicly accessible — no authentication required.
      */
     @GetMapping("/feed")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<NewsItem>> getNewsFeed() {
         List<NewsItem> items = rssFeedService.fetchAll();
         return ResponseEntity.ok(items);

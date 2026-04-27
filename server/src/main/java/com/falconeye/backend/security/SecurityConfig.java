@@ -27,9 +27,16 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                // Public endpoints — no login required
                 .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/events/**").permitAll()
+                .antMatchers("/api/news/**").permitAll()
+                // Bookmark endpoints — must be logged in (any role)
+                .antMatchers("/api/bookmarks/**").hasAnyRole("ADMIN", "USER")
+                // Admin endpoints — must have ADMIN role
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                // Deny anything else by default
+                .anyRequest().denyAll()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,11 +28,20 @@ public class RssFeedService {
     private static final Map<String, String> FEED_SOURCES = new LinkedHashMap<>();
 
     static {
-        // The Guardian – Middle East section
         FEED_SOURCES.put("The Guardian", "https://www.theguardian.com/world/middleeast/rss");
-
-        // Al Jazeera – Middle East section
-        FEED_SOURCES.put("Al Jazeera", "https://www.aljazeera.com/xml/rss/all.xml");
+        FEED_SOURCES.put("The Jerusalem Post", "https://www.jpost.com/rss/rssfeedsmiddleeastnews.aspx");
+        FEED_SOURCES.put("BBC Middle East", "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml");
+        FEED_SOURCES.put("Middle East Eye", "https://www.middleeasteye.net/rss");
+        FEED_SOURCES.put("PressTV", "https://www.presstv.ir/rss/rss-102.xml");
+        FEED_SOURCES.put("Middle East Monitor", "https://www.middleeastmonitor.com/feed/");
+        FEED_SOURCES.put("France 24", "https://www.france24.com/en/middle-east/rss");
+        FEED_SOURCES.put("The New York Times", "https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml");
+        FEED_SOURCES.put("United Nations", "https://news.un.org/feed/subscribe/en/news/region/middle-east/feed/rss.xml");
+        FEED_SOURCES.put("The Wall Street Journal", "https://feeds.content.dowjones.io/public/rss/RSSWorldNews");
+        FEED_SOURCES.put("The Times Of India", "https://timesofindia.indiatimes.com/rssfeeds/1898272.cms");
+        FEED_SOURCES.put("MintPress News", "https://www.mintpressnews.com/feed/");
+        FEED_SOURCES.put("Mondoweiss", "https://mondoweiss.net/feed/");
+        FEED_SOURCES.put("Le Monde", "https://www.lemonde.fr/en/middle-east/rss_full.xml");
     }
 
     /**
