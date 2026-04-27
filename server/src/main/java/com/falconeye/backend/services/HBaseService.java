@@ -194,9 +194,9 @@ public class HBaseService {
         event.setRegion(getValueAsStr(result, "region"));
         event.setCountry(getValueAsStr(result, "country"));
         event.setAdmin1(getValueAsStr(result, "admin1"));
-        event.setEventType(getValueAsStr(result, "eventType"));
-        event.setSubEventType(getValueAsStr(result, "subEventType"));
-        event.setDisorderType(getValueAsStr(result, "disorderType"));
+        event.setEventType(getValueAsStr(result, "event_type"));
+        event.setSubEventType(getValueAsStr(result, "sub_event_type"));
+        event.setDisorderType(getValueAsStr(result, "disorder_type"));
 
         String fatalitiesStr = getValueAsStr(result, "fatalities");
         event.setFatalities(fatalitiesStr != null ? parseIntSafe(fatalitiesStr) : 0);
@@ -211,7 +211,7 @@ public class HBaseService {
         String eventsStr = getValueAsStr(result, "events");
         event.setEvents(eventsStr != null ? parseIntSafe(eventsStr) : null);
 
-        String popStr = getValueAsStr(result, "pop_exposure");
+        String popStr = getValueAsStr(result, "population_exposure");
         event.setPopExposure(popStr != null ? parseDoubleSafe(popStr) : null);
 
         return event;
