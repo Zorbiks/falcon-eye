@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "NodeNext",
     "useDefineForClassFields": true,
     "target": "ESNext",
     "lib": ["esnext", "dom"],
     "allowJs": true,
     "ignoreDeprecations": "6.0",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "strict": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,

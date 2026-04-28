@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
 import { Card } from 'src/components/ui/card'
 import { useGlobalData } from 'src/context'
+import { CompactCardSkeleton } from './loaders'
 
 const formatNumber = (value: number) => new Intl.NumberFormat().format(value)
 
 export default function CasualtiesCard() {
-  const { events } = useGlobalData()
+  const { events, isLoading, hasEventsLoaded } = useGlobalData()
 
   const metricData = useMemo(() => {
     const totals = events.reduce(
@@ -46,6 +47,14 @@ export default function CasualtiesCard() {
       },
     ]
   }, [events])
+
+  if (isLoading && !hasEventsLoaded) {
+    return (
+      <div aria-busy="true" aria-live="polite">
+        <CompactCardSkeleton />
+      </div>
+    )
+  }
 
   return (
     <Card className="bg-slate-950/80 border-slate-800/70 p-4 rounded-2xl w-full max-w-[600px] flex-auto">

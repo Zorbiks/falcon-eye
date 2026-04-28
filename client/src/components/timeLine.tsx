@@ -13,9 +13,10 @@ import {
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from './ui/drawer'
+import { TimelineSkeleton } from './loaders'
 
 export default function TimelineFeed() {
-  const { feedData } = useGlobalData()
+  const { feedData, isFeedLoading, hasFeedLoaded } = useGlobalData()
   const [selectedEvent, setSelectedEvent] = useState<FeedCard | null>(null)
   const [visibleCount, setVisibleCount] = useState(8)
   const loadStep = 6
@@ -63,6 +64,14 @@ export default function TimelineFeed() {
     if (nearBottom) {
       setVisibleCount((prev) => Math.min(prev + loadStep, feedEvents.length))
     }
+  }
+
+  if (isFeedLoading && !hasFeedLoaded) {
+    return (
+      <div aria-busy="true" aria-live="polite">
+        <TimelineSkeleton />
+      </div>
+    )
   }
 
   return (

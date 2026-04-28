@@ -7,10 +7,11 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } f
 import { useGlobalData } from 'src/context'
 import { getEventStyle } from 'src/utils/getEventStyle'
 import { createCustomIcon } from 'src/utils/createCustomIcon'
+import { MapSkeleton } from './loaders'
 import type { AcledEvent } from 'src/types/events'
 
 export default function MainMap() {
-  const { events } = useGlobalData()
+  const { events, isLoading, hasEventsLoaded } = useGlobalData()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -48,6 +49,14 @@ export default function MainMap() {
     }
 
     await containerRef.current.requestFullscreen()
+  }
+
+  if (isLoading && !hasEventsLoaded) {
+    return (
+      <div aria-busy="true" aria-live="polite">
+        <MapSkeleton />
+      </div>
+    )
   }
 
   return (

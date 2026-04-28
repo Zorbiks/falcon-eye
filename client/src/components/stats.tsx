@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import eventThemeRegistry from '../data/eventThemeRegistry.json'
 import { useGlobalData } from '../context'
 import type { CategoryStat, EventTheme } from '../types/categories'
+import { StatsSkeleton } from './loaders'
 
 const SOURCE_GROUP_ORDER = [
   'Western Media',
@@ -49,7 +50,7 @@ const registryCategories = Object.keys(categoryColorMap)
 const DEFAULT_CATEGORY_COLOR = rawThemes.default?.color ?? '#7F8C8D'
 
 export default function StatsCard() {
-  const { events, feedData } = useGlobalData()
+  const { events, feedData, isLoading, hasEventsLoaded, isFeedLoading, hasFeedLoaded } = useGlobalData()
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
 
   const { categoryStats, totalEvents } = useMemo(() => {
@@ -145,6 +146,14 @@ export default function StatsCard() {
       ...prev,
       [groupName]: !(prev[groupName] ?? true),
     }))
+  }
+
+  if ((isLoading && !hasEventsLoaded) || (isFeedLoading && !hasFeedLoaded)) {
+    return (
+      <div aria-busy="true" aria-live="polite">
+        <StatsSkeleton />
+      </div>
+    )
   }
 
   return (

@@ -5,6 +5,7 @@ import { cn } from 'src/lib/utils'
 import { useGlobalData } from 'src/context'
 import eventThemeRegistry from 'src/data/eventThemeRegistry.json'
 import type { EventTheme, FilterCategory } from 'src/types/categories'
+import { FiltersSkeleton } from './loaders'
 
 const rawThemes = eventThemeRegistry as Record<string, EventTheme>
 const categoryColorMap = Object.entries(rawThemes)
@@ -25,7 +26,7 @@ const DEFAULT_CATEGORY_COLOR = rawThemes.default?.color ?? '#7F8C8D'
 const ranges = ['24h', '7d', '30d', 'All']
 
 export default function Filters() {
-  const { events } = useGlobalData()
+  const { events, isLoading, hasEventsLoaded } = useGlobalData()
 
   const { totalEvents, filterCategories } = useMemo(() => {
     const countsByCategory: Record<string, number> = { Other: 0 }
@@ -65,6 +66,14 @@ export default function Filters() {
       filterCategories: categories,
     }
   }, [events])
+
+  if (isLoading && !hasEventsLoaded) {
+    return (
+      <div aria-busy="true" aria-live="polite">
+        <FiltersSkeleton />
+      </div>
+    )
+  }
 
   return (
     <div className="flex items-center  gap-3 bg-slate-950/80  rounded-xl p-2 w-full overflow-x-auto no-scrollbar">

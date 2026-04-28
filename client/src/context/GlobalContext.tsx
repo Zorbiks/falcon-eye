@@ -11,12 +11,14 @@ import mockFeedData from 'src/data/feed-mock.json'
 type GlobalContextValue = {
   events: AcledEvent[]
   isLoading: boolean
+  hasEventsLoaded: boolean
   error: string | null
   country: string | null
   setCountry: (country: string | null) => void
   refetchEvents: () => Promise<void>
   feedData: FeedItem[]
   isFeedLoading: boolean
+  hasFeedLoaded: boolean
   feedError: string | null
   refetchFeed: () => Promise<void>
 }
@@ -26,11 +28,13 @@ const GlobalContext = createContext<GlobalContextValue | undefined>(undefined)
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [events, setEvents] = useState<AcledEvent[]>(mockEventsData)
   const [isLoading, setIsLoading] = useState(false)
+  const [hasEventsLoaded, setHasEventsLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [country, setCountry] = useState<string | null>(null)
 
   const [feedData, setFeedData] = useState<FeedItem[]>(mockFeedData)
   const [isFeedLoading, setIsFeedLoading] = useState(false)
+  const [hasFeedLoaded, setHasFeedLoaded] = useState(false)
   const [feedError, setFeedError] = useState<string | null>(null)
 
   const refetchEvents = useCallback(async () => {
@@ -46,6 +50,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       setEvents([])
     } finally {
       setIsLoading(false)
+      setHasEventsLoaded(true)
     }
   }, [country])
 
@@ -62,6 +67,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       setFeedData([])
     } finally {
       setIsFeedLoading(false)
+      setHasFeedLoaded(true)
     }
   }, [])
 
@@ -77,16 +83,30 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       events,
       isLoading,
+      hasEventsLoaded,
       error,
       country,
       setCountry,
       refetchEvents,
       feedData,
       isFeedLoading,
+      hasFeedLoaded,
       feedError,
       refetchFeed,
     }),
-    [country, error, events, feedData, feedError, isFeedLoading, isLoading, refetchEvents, refetchFeed],
+    [
+      country,
+      error,
+      events,
+      feedData,
+      feedError,
+      hasEventsLoaded,
+      hasFeedLoaded,
+      isFeedLoading,
+      isLoading,
+      refetchEvents,
+      refetchFeed,
+    ],
   )
 
   return <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
