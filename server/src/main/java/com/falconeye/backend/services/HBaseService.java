@@ -11,11 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.hadoop.hbase.filter.*;
 
+import com.falconeye.backend.dto.AdminRiskStats;
+import com.falconeye.backend.dto.EventTypeStats;
+import com.falconeye.backend.dto.RegionCountryStats;
+import com.falconeye.backend.dto.YearStats;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class HBaseService {
@@ -186,6 +195,131 @@ public class HBaseService {
         return new CountryStats(countryName, totalEvents, totalFatalities);
     }
 
+    // -------------------------------------------------------------------------
+    // ANALYSIS METHODS
+    // -------------------------------------------------------------------------
+
+    /** Groups all events for a country by year, sorted ascending. */
+    public List<YearStats> getStatsByYear(String country, String startDate, String endDate) {
+        List<AcledEvent> events = (startDate != null)
+                ? searchEvents(country, startDate, endDate)
+                : getEventsByCountry(country);
+
+        Map<Integer, int[]> byYear = new LinkedHashMap<>();
+        for (AcledEvent e : events) {
+            if (e.getWeek() == null) continue;
+            try {
+                int year = LocalDate.parse(e.getWeek()).getYear();
+                byYear.computeIfAbsent(year, k -> new int[2]);
+                byYear.get(year)[0] += e.getEvents() != null ? e.getEvents() : 1;
+                byYear.get(year)[1] += e.getFatalities() != null ? e.getFatalities() : 0;
+            } catch (Exception ignored) {}
+        }
+
+        return byYear.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> new YearStats(entry.getKey(), entry.getValue()[0], entry.getValue()[1]))
+                .collect(Collectors.toList());
+    }
+
+    /** Groups events by eventType with subEventType breakdown and fatalities. */
+    public List<EventTypeStats> getStatsByEventType(String country, String startDate, String endDate) {
+        List<AcledEvent> events = (startDate != null)
+                ? searchEvents(country, startDate, endDate)
+                : getEventsByCountry(country);
+
+        Map<String, int[]> totals = new LinkedHashMap<>();
+        Map<String, Map<String, Integer>> subBreakdown = new LinkedHashMap<>();
+
+        for (AcledEvent e : events) {
+            String et = e.getEventType() != null ? e.getEventType() : "Unknown";
+            String set = e.getSubEventType() != null ? e.getSubEventType() : "Unknown";
+            int evtCount = e.getEvents() != null ? e.getEvents() : 1;
+            int fatalities = e.getFatalities() != null ? e.getFatalities() : 0;
+
+            totals.computeIfAbsent(et, k -> new int[2]);
+            totals.get(et)[0] += evtCount;
+            totals.get(et)[1] += fatalities;
+
+            subBreakdown.computeIfAbsent(et, k -> new LinkedHashMap<>());
+            subBreakdown.get(et).merge(set, evtCount, Integer::sum);
+        }
+
+        return totals.entrySet().stream()
+                .sorted((a, b) -> b.getValue()[0] - a.getValue()[0])
+                .map(entry -> new EventTypeStats(
+                        entry.getKey(),
+                        entry.getValue()[0],
+                        entry.getValue()[1],
+                        subBreakdown.get(entry.getKey())))
+                .collect(Collectors.toList());
+    }
+
+    /** Ranks admin1 regions within a country by risk score (fatalities * popExposure). */
+    public List<AdminRiskStats> getRiskByAdmin1(String country, String startDate, String endDate) {
+        List<AcledEvent> events = (startDate != null)
+                ? searchEvents(country, startDate, endDate)
+                : getEventsByCountry(country);
+
+        Map<String, double[]> byAdmin = new LinkedHashMap<>();
+        for (AcledEvent e : events) {
+            String admin = e.getAdmin1() != null ? e.getAdmin1() : "Unknown";
+            byAdmin.computeIfAbsent(admin, k -> new double[3]);
+            byAdmin.get(admin)[0] += e.getEvents() != null ? e.getEvents() : 1;
+            byAdmin.get(admin)[1] += e.getFatalities() != null ? e.getFatalities() : 0;
+            byAdmin.get(admin)[2] += e.getPopExposure() != null ? e.getPopExposure() : 0;
+        }
+
+        return byAdmin.entrySet().stream()
+                .map(entry -> {
+                    double[] v = entry.getValue();
+                    double riskScore = v[1] * v[2];
+                    return new AdminRiskStats(entry.getKey(), (int) v[0], (int) v[1], v[2], riskScore);
+                })
+                .sorted(Comparator.comparingDouble(AdminRiskStats::getRiskScore).reversed())
+                .collect(Collectors.toList());
+    }
+
+    /** Full table scan filtered by region column, aggregated per country. */
+    public List<RegionCountryStats> getStatsByRegion(String region) {
+        List<AcledEvent> events = new ArrayList<>();
+
+        try (Table table = hbaseConnection.getTable(TableName.valueOf(TABLE_NAME))) {
+            Scan scan = new Scan();
+            SingleColumnValueFilter regionFilter = new SingleColumnValueFilter(
+                    CF, Bytes.toBytes("region"),
+                    CompareOperator.EQUAL,
+                    Bytes.toBytes(region));
+            regionFilter.setFilterIfMissing(true);
+            scan.setFilter(regionFilter);
+
+            try (ResultScanner scanner = table.getScanner(scan)) {
+                for (Result result : scanner) {
+                    events.add(mapResultToEvent(result));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error scanning HBase for region: " + region, e);
+        }
+
+        Map<String, double[]> byCountry = new LinkedHashMap<>();
+        for (AcledEvent e : events) {
+            String c = e.getCountry() != null ? e.getCountry() : "Unknown";
+            byCountry.computeIfAbsent(c, k -> new double[3]);
+            byCountry.get(c)[0] += e.getEvents() != null ? e.getEvents() : 1;
+            byCountry.get(c)[1] += e.getFatalities() != null ? e.getFatalities() : 0;
+            byCountry.get(c)[2] += e.getPopExposure() != null ? e.getPopExposure() : 0;
+        }
+
+        return byCountry.entrySet().stream()
+                .map(entry -> {
+                    double[] v = entry.getValue();
+                    return new RegionCountryStats(entry.getKey(), (int) v[0], (int) v[1], v[2]);
+                })
+                .sorted(Comparator.comparingInt(RegionCountryStats::getTotalEvents).reversed())
+                .collect(Collectors.toList());
+    }
+
     private AcledEvent mapResultToEvent(Result result) {
         AcledEvent event = new AcledEvent();
         event.setRowKey(Bytes.toString(result.getRow()));
@@ -212,7 +346,7 @@ public class HBaseService {
         event.setEvents(eventsStr != null ? parseIntSafe(eventsStr) : null);
 
         String popStr = getValueAsStr(result, "population_exposure");
-        event.setPopExposure(popStr != null ? parseDoubleSafe(popStr) : null);
+        event.setPopExposure((popStr != null && !popStr.isEmpty()) ? parseDoubleSafe(popStr) : null);
 
         return event;
     }

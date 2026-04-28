@@ -1,6 +1,10 @@
 package com.falconeye.backend.controllers;
 
+import com.falconeye.backend.dto.AdminRiskStats;
+import com.falconeye.backend.dto.EventTypeStats;
 import com.falconeye.backend.dto.MessageResponse;
+import com.falconeye.backend.dto.RegionCountryStats;
+import com.falconeye.backend.dto.YearStats;
 import com.falconeye.backend.models.AcledEvent;
 import com.falconeye.backend.models.CountryStats;
 import com.falconeye.backend.services.HBaseService;
@@ -88,6 +92,68 @@ public class AcledEventController {
             return ResponseEntity.ok(new MessageResponse("No statistics found for country: " + formattedCountry));
         }
 
+        return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * GET /api/events/stats/{country}/by-year
+     * Optional: ?start=YYYY-MM-DD&end=YYYY-MM-DD
+     */
+    @GetMapping("/stats/{countryName}/by-year")
+    public ResponseEntity<?> getStatsByYear(
+            @PathVariable String countryName,
+            @RequestParam(required = false) String start,
+            @RequestParam(required = false) String end) {
+        String country = titleCase(countryName);
+        List<YearStats> stats = hbaseService.getStatsByYear(country, start, end);
+        if (stats.isEmpty())
+            return ResponseEntity.ok(new MessageResponse("No data found for country: " + country));
+        return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * GET /api/events/stats/{country}/by-type
+     * Optional: ?start=YYYY-MM-DD&end=YYYY-MM-DD
+     */
+    @GetMapping("/stats/{countryName}/by-type")
+    public ResponseEntity<?> getStatsByEventType(
+            @PathVariable String countryName,
+            @RequestParam(required = false) String start,
+            @RequestParam(required = false) String end) {
+        String country = titleCase(countryName);
+        List<EventTypeStats> stats = hbaseService.getStatsByEventType(country, start, end);
+        if (stats.isEmpty())
+            return ResponseEntity.ok(new MessageResponse("No data found for country: " + country));
+        return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * GET /api/events/stats/{country}/risk
+     * Ranks admin1 regions by risk score (fatalities * popExposure).
+     * Optional: ?start=YYYY-MM-DD&end=YYYY-MM-DD
+     */
+    @GetMapping("/stats/{countryName}/risk")
+    public ResponseEntity<?> getRiskByAdmin1(
+            @PathVariable String countryName,
+            @RequestParam(required = false) String start,
+            @RequestParam(required = false) String end) {
+        String country = titleCase(countryName);
+        List<AdminRiskStats> stats = hbaseService.getRiskByAdmin1(country, start, end);
+        if (stats.isEmpty())
+            return ResponseEntity.ok(new MessageResponse("No data found for country: " + country));
+        return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * GET /api/events/stats/region/{regionName}
+     * Aggregates all countries within a region, ranked by total events.
+     */
+    @GetMapping("/stats/region/{regionName}")
+    public ResponseEntity<?> getStatsByRegion(@PathVariable String regionName) {
+        String region = titleCase(regionName);
+        List<RegionCountryStats> stats = hbaseService.getStatsByRegion(region);
+        if (stats.isEmpty())
+            return ResponseEntity.ok(new MessageResponse("No data found for region: " + region));
         return ResponseEntity.ok(stats);
     }
 
