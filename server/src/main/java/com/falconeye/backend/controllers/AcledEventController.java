@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
@@ -155,6 +156,40 @@ public class AcledEventController {
         if (stats.isEmpty())
             return ResponseEntity.ok(new MessageResponse("No data found for region: " + region));
         return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * GET /api/events/recent
+     * Returns all events from every country within the last 30 days of available data.
+     * "Last 30 days" is relative to the latest date found in the dataset, not today's
+     * wall-clock date, so the response is always populated regardless of when the
+     * data was last ingested.
+     *
+     * Optional: ?country=morocco  – narrow results to a single country
+     */
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentEvents(
+            @RequestParam(required = false) String country) {
+
+        // 1. Discover the latest date present in the dataset (cached after first call)
+        LocalDate latestDate = hbaseService.getLatestDateInDatabase();
+
+        // 2. Compute the 30-day window
+        String endDate   = latestDate.toString();                      // e.g. "2020-12-26"
+        String startDate = latestDate.minusDays(30).toString();        // e.g. "2020-11-26"
+
+        // 3. Optionally filter by country
+        String formattedCountry = (country != null && !country.isBlank()) ? titleCase(country) : null;
+
+        // 4. Delegate to the shared search logic (handles both scoped and full-table scans)
+        List<AcledEvent> events = hbaseService.searchEvents(formattedCountry, startDate, endDate);
+
+        if (events.isEmpty()) {
+            return ResponseEntity.ok(new MessageResponse(
+                    "No events found in the last 30 days of data (window: " + startDate + " – " + endDate + ")."));
+        }
+
+        return ResponseEntity.ok(events);
     }
 
     private String titleCase(String value) {
