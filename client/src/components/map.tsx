@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { Home, Expand, Minimize2 } from 'lucide-react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import { useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
@@ -13,9 +13,24 @@ import { createCustomIcon } from 'src/utils/createCustomIcon'
 import { MapSkeleton } from './loaders'
 import type { AcledEvent } from 'src/types/events'
 
-const CLUSTER_ZOOM_THRESHOLD = 8
+const createClusterCustomIcon = (cluster: any) => {
+  const count = cluster.getChildCount()
 
-// Zoom watcher
+  let sizeClass = 'small'
+  if (count > 50) sizeClass = 'large'
+  else if (count > 10) sizeClass = 'medium'
+
+  const size = sizeClass === 'large' ? 64 : sizeClass === 'medium' ? 52 : 40
+
+  return L.divIcon({
+    html: `<div class="glow-cluster ${sizeClass}" aria-hidden="true"><span>${count}</span></div>`,
+    className: '',
+    iconSize: L.point(size, size),
+    iconAnchor: L.point(size / 2, size / 2),
+    popupAnchor: L.point(0, -size / 2),
+  })
+}
+
 function ZoomWatcher({ setZoom }: { setZoom: (z: number) => void }) {
   useMapEvents({
     zoomend(e) {
@@ -26,6 +41,14 @@ function ZoomWatcher({ setZoom }: { setZoom: (z: number) => void }) {
   return null
 }
 
+// Helper component to capture map instance
+const MapCenter = ({ mapRef }: { mapRef: React.MutableRefObject<any> }) => {
+  const map = useMap()
+  useEffect(() => {
+    mapRef.current = map
+  }, [map, mapRef])
+  return null
+}
 // Map
 export default function MainMap() {
   const { events, isLoading, hasEventsLoaded } = useGlobalData()
@@ -33,6 +56,7 @@ export default function MainMap() {
   const memoEvents = useMemo(() => events, [events])
 
   const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<any>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<AcledEvent | null>(null)
   const [zoom, setZoom] = useState(3)
@@ -90,7 +114,12 @@ export default function MainMap() {
         onOpenChange={(open: boolean) => !open && setSelectedEvent(null)}
         direction="right"
       >
-        <DrawerContent className="inset-y-0 right-0 left-auto mt-0 h-full w-full max-w-[420px] gap-0 overflow-hidden rounded-none border-l border-slate-800 border-t-0 bg-slate-950 p-0 font-sans text-slate-100 antialiased shadow-2xl sm:max-w-[420px] [&>div:first-child]:hidden">
+        <DrawerContent
+          disablePortal={isFullscreen}
+          className={`inset-y-0 right-0 left-auto mt-0 h-full w-full max-w-[420px] gap-0 overflow-hidden rounded-none border-l border-slate-800 border-t-0 bg-slate-950 p-0 font-sans text-slate-100 antialiased shadow-2xl sm:max-w-[420px] [&>div:first-child]:hidden ${
+            isFullscreen ? 'z-[9999]' : ''
+          }`}
+        >
           {selectedEvent ? (
             <div className="flex h-full flex-col">
               <div className="border-b border-slate-800 px-1 py-4">
@@ -175,7 +204,14 @@ export default function MainMap() {
         <h1 className="text-[20px] text-slate-100 font-bold">Conflict Map</h1>
 
         <div className="flex gap-3">
-          <Button className="bg-transparent p-0 hover:bg-transparent">
+          <Button
+            className="bg-transparent p-0 hover:bg-transparent"
+            onClick={() => {
+              if (mapRef.current) {
+                mapRef.current.setView([28, 45], zoom)
+              }
+            }}
+          >
             <Home className="w-[20px] stroke-slate-200 cursor-pointer" />
           </Button>
 
@@ -204,12 +240,16 @@ export default function MainMap() {
           className="h-full w-full"
           attributionControl={false}
         >
+          <MapCenter mapRef={mapRef} />
+
           <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png" />
+
+          <ZoomWatcher setZoom={setZoom} />
+
           <MarkerClusterGroup
-            animate={true}
+            iconCreateFunction={createClusterCustomIcon}
             chunkedLoading={true}
             chunkInterval={100}
-            singleMarkerMode={false}
             spiderfyOnMaxZoom={true}
             showCoverageOnHover={false}
           >
@@ -232,16 +272,18 @@ export default function MainMap() {
         </MapContainer>
       </div>
 
-      <div className="absolute left-0 bottom-2 z-[1000] ml-3 pointer-events-none">
-        <div className="bg-slate-900/90 border border-slate-700 p-4 backdrop-blur-sm shadow-2xl rounded-lg max-h-[400px] overflow-y-auto">
+      <div className="absolute left-0 bottom-2 z-[1000] ml-3">
+        <div
+          className="bg-slate-900/90 border border-slate-700 p-4 backdrop-blur-sm shadow-2xl rounded-lg max-h-[250px] overflow-y-auto"
+          onWheel={(e) => e.stopPropagation()}
+        >
           <div className="flex flex-col gap-2 font-mono">
-            <p className="text-[10px] text-emerald-500 font-bold tracking-widest mb-2">LEGEND</p>
             <div className="flex flex-col gap-1.5 text-[9px] text-slate-300">
               {legendItems.map((event) => {
                 const style = getEventStyle(event.eventType, event.subEventType)
                 return (
                   <div key={event.subEventType} className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: style.color }} />
+                    <i className={`fa-solid ${style.icon} flex-shrink-0 w-4`} style={{ color: style.color }} />
                     <span className="truncate">{event.subEventType}</span>
                   </div>
                 )
