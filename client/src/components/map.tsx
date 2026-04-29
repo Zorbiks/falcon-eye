@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { Home, Expand, Minimize2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import MarkerClusterGroup from 'react-leaflet-cluster'
+import { useMapEvents } from 'react-leaflet'
+import L from 'leaflet'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from './ui/drawer'
@@ -10,22 +13,40 @@ import { createCustomIcon } from 'src/utils/createCustomIcon'
 import { MapSkeleton } from './loaders'
 import type { AcledEvent } from 'src/types/events'
 
+const CLUSTER_ZOOM_THRESHOLD = 8
+
+// Zoom watcher
+function ZoomWatcher({ setZoom }: { setZoom: (z: number) => void }) {
+  useMapEvents({
+    zoomend(e) {
+      setZoom(e.target.getZoom())
+    },
+  })
+
+  return null
+}
+
+// Map
 export default function MainMap() {
   const { events, isLoading, hasEventsLoaded } = useGlobalData()
+
+  const memoEvents = useMemo(() => events, [events])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<AcledEvent | null>(null)
+  const [zoom, setZoom] = useState(3)
 
   const legendItems = useMemo(() => {
     const uniqueSubTypes = new Map<string, AcledEvent>()
-    events.forEach((event) => {
+
+    memoEvents.forEach((event) => {
       if (!uniqueSubTypes.has(event.subEventType)) {
         uniqueSubTypes.set(event.subEventType, event)
       }
     })
     return Array.from(uniqueSubTypes.values()).sort((a, b) => a.subEventType.localeCompare(b.subEventType))
-  }, [events])
+  }, [memoEvents])
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -178,27 +199,36 @@ export default function MainMap() {
       >
         <MapContainer
           center={[51.505, -0.09]}
-          zoom={6}
-          scrollWheelZoom={false}
+          zoom={zoom}
+          scrollWheelZoom={true}
           className="h-full w-full"
           attributionControl={false}
         >
-          <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-          {events.map((event) => {
-            const style = getEventStyle(event.eventType, event.subEventType)
-            const icon = createCustomIcon(style)
+          <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png" />
+          <MarkerClusterGroup
+            animate={true}
+            chunkedLoading={true}
+            chunkInterval={100}
+            singleMarkerMode={false}
+            spiderfyOnMaxZoom={true}
+            showCoverageOnHover={false}
+          >
+            {memoEvents.map((event) => {
+              const style = getEventStyle(event.eventType, event.subEventType)
+              const icon = createCustomIcon(style)
 
-            return (
-              <Marker
-                key={event.rowKey}
-                position={[event.latitude, event.longitude]}
-                icon={icon}
-                eventHandlers={{
-                  click: () => setSelectedEvent(event),
-                }}
-              />
-            )
-          })}
+              return (
+                <Marker
+                  key={event.rowKey}
+                  position={[event.latitude, event.longitude]}
+                  icon={icon}
+                  eventHandlers={{
+                    click: () => setSelectedEvent(event),
+                  }}
+                />
+              )
+            })}
+          </MarkerClusterGroup>
         </MapContainer>
       </div>
 

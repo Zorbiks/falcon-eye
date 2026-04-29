@@ -15,29 +15,29 @@ type GlobalContextValue = {
   error: string | null
   country: string | null
   setCountry: (country: string | null) => void
-  refetchEvents: () => Promise<void>
+  fetchEvents: () => Promise<void>
   feedData: FeedItem[]
   isFeedLoading: boolean
   hasFeedLoaded: boolean
   feedError: string | null
-  refetchFeed: () => Promise<void>
+  fetchFeed: () => Promise<void>
 }
 
 const GlobalContext = createContext<GlobalContextValue | undefined>(undefined)
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
-  const [events, setEvents] = useState<AcledEvent[]>(mockEventsData)
-  const [isLoading, setIsLoading] = useState(false)
+  const [events, setEvents] = useState<AcledEvent[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [hasEventsLoaded, setHasEventsLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [country, setCountry] = useState<string | null>(null)
 
   const [feedData, setFeedData] = useState<FeedItem[]>(mockFeedData)
-  const [isFeedLoading, setIsFeedLoading] = useState(false)
+  const [isFeedLoading, setIsFeedLoading] = useState(true)
   const [hasFeedLoaded, setHasFeedLoaded] = useState(false)
   const [feedError, setFeedError] = useState<string | null>(null)
 
-  const refetchEvents = useCallback(async () => {
+  const fetchEvents = async () => {
     setIsLoading(true)
     setError(null)
 
@@ -52,9 +52,9 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(false)
       setHasEventsLoaded(true)
     }
-  }, [country])
+  }
 
-  const refetchFeed = useCallback(async () => {
+  const fetchFeed = async () => {
     setIsFeedLoading(true)
     setFeedError(null)
 
@@ -69,15 +69,15 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       setIsFeedLoading(false)
       setHasFeedLoaded(true)
     }
+  }
+
+  useEffect(() => {
+    fetchEvents()
+  }, [country])
+
+  useEffect(() => {
+    fetchFeed()
   }, [])
-
-  useEffect(() => {
-    void refetchEvents()
-  }, [refetchEvents])
-
-  useEffect(() => {
-    void refetchFeed()
-  }, [refetchFeed])
 
   const value = useMemo(
     () => ({
@@ -87,12 +87,12 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       error,
       country,
       setCountry,
-      refetchEvents,
+      fetchEvents,
       feedData,
       isFeedLoading,
       hasFeedLoaded,
       feedError,
-      refetchFeed,
+      fetchFeed,
     }),
     [
       country,
@@ -104,8 +104,8 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       hasFeedLoaded,
       isFeedLoading,
       isLoading,
-      refetchEvents,
-      refetchFeed,
+      fetchEvents,
+      fetchFeed,
     ],
   )
 

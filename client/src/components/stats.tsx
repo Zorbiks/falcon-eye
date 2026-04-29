@@ -1,35 +1,16 @@
 import { useMemo, useState } from 'react'
 import eventThemeRegistry from '../data/eventThemeRegistry.json'
+import sourcesData from '../data/sources.json'
 import { useGlobalData } from '../context'
 import type { CategoryStat, EventTheme } from '../types/categories'
 import { StatsSkeleton } from './loaders'
 
-const SOURCE_GROUP_ORDER = [
-  'Western Media',
-  'Regional Media',
-  'Iranian Perspective',
-  'Official / Primary',
-  'OSINT / Analysis',
-] as const
+const SOURCE_GROUP_ORDER = ['western', 'regional', 'real-time'] as const
 
-const SOURCE_GROUP_MAP: Record<string, (typeof SOURCE_GROUP_ORDER)[number]> = {
-  'The Guardian': 'Western Media',
-  'Al Jazeera': 'Regional Media',
-  ACLED: 'Official / Primary',
-  'Iran International': 'Iranian Perspective',
-  'Tehran Times': 'Iranian Perspective',
-  'Press TV': 'Iranian Perspective',
-  'Middle East Eye': 'Regional Media',
-  'Jerusalem Post': 'Regional Media',
-  'Anadolu Agency': 'Regional Media',
-  'Arab News': 'Regional Media',
-  'UN News Middle East': 'Official / Primary',
-  'US DoD News': 'Official / Primary',
-  'UN Security Council': 'Official / Primary',
-  'Atlantic Council': 'OSINT / Analysis',
-  'Arms Control Association': 'OSINT / Analysis',
-  Bellingcat: 'OSINT / Analysis',
-  'Long War Journal': 'OSINT / Analysis',
+const SOURCE_GROUP_LABELS: Record<string, string> = {
+  western: 'Western',
+  regional: 'Regional',
+  'real-time': 'Real-time',
 }
 
 const rawThemes = eventThemeRegistry as Record<string, EventTheme>
@@ -104,42 +85,18 @@ export default function StatsCard() {
   }, [events])
 
   const groupedSources = useMemo(() => {
-    const uniqueSources = new Set<string>()
-
-    feedData.forEach((item) => {
-      const sourceName = item.source?.trim()
-      if (sourceName) {
-        uniqueSources.add(sourceName)
-      }
-    })
-
-    if (events.length > 0) {
-      uniqueSources.add('ACLED')
-    }
-
-    const groups = new Map<string, string[]>()
-
-    SOURCE_GROUP_ORDER.forEach((group) => groups.set(group, []))
-
-    Array.from(uniqueSources)
-      .sort((a, b) => a.localeCompare(b))
-      .forEach((sourceName) => {
-        const group = SOURCE_GROUP_MAP[sourceName] ?? 'Regional Media'
-        groups.get(group)?.push(sourceName)
-      })
-
-    return SOURCE_GROUP_ORDER.map((groupName) => ({
-      groupName,
-      sources: groups.get(groupName) ?? [],
+    return SOURCE_GROUP_ORDER.map((groupKey) => ({
+      groupName: SOURCE_GROUP_LABELS[groupKey],
+      sources: sourcesData[groupKey as keyof typeof sourcesData] || [],
     })).filter((group) => group.sources.length > 0)
-  }, [events.length, feedData])
+  }, [])
 
   const totalSources = useMemo(
     () => groupedSources.reduce((total, group) => total + group.sources.length, 0),
     [groupedSources],
   )
 
-  const isGroupOpen = (groupName: string) => openGroups[groupName] ?? true
+  const isGroupOpen = (groupName: string) => openGroups[groupName] ?? false
 
   const toggleGroup = (groupName: string) => {
     setOpenGroups((prev) => ({
@@ -189,9 +146,6 @@ export default function StatsCard() {
           <h3 className="text-slate-200 text-xs font-semibold uppercase tracking-wider">Sources</h3>
           <span className="text-[10px] text-slate-300 font-mono">
             <span className="text-emerald-500">{totalSources}</span> SOURCES
-            <span className="text-slate-400 ml-2">
-              ({feedData.length} feed + {events.length} ACLED events)
-            </span>
           </span>
         </div>
 
@@ -207,7 +161,7 @@ export default function StatsCard() {
               >
                 <span className="text-slate-400">{isGroupOpen(group.groupName) ? '⌄' : '›'}</span>
                 <span>{group.groupName}</span>
-                {group.groupName === 'Western Media' ? (
+                {group.groupName === 'Western' ? (
                   <div className="h-1.5 w-1.5 rounded-full bg-orange-500 shadow-[0_0_5px_#f97316]" />
                 ) : null}
               </button>

@@ -67,16 +67,14 @@ export default function Filters() {
     }
   }, [events])
 
-  if (isLoading && !hasEventsLoaded) {
-    return (
-      <div aria-busy="true" aria-live="polite">
-        <FiltersSkeleton />
-      </div>
-    )
-  }
+  // Always render the filters UI, but disable interactions while the map data is loading
+  const rootClass = cn(
+    'flex items-center gap-3 bg-slate-950/80 rounded-xl p-2 w-full overflow-x-auto no-scrollbar',
+    isLoading && !hasEventsLoaded ? 'pointer-events-none opacity-60' : '',
+  )
 
   return (
-    <div className="flex items-center  gap-3 bg-slate-950/80  rounded-xl p-2 w-full overflow-x-auto no-scrollbar">
+    <div className={rootClass} aria-busy={isLoading && !hasEventsLoaded} aria-live="polite">
       <Button
         variant="secondary"
         className="bg-slate-800/70 text-slate-100 hover:bg-slate-800 border border-slate-600 h-8 text-xs font-medium px-4"

@@ -1,0 +1,21 @@
+{
+  "western": [
+    "The Guardian",
+    "BBC Middle East",
+    "France 24",
+    "The New York Times",
+    "United Nations",
+    "The Wall Street Journal",
+    "Le Monde"
+  ],
+  "regional": [
+    "The Jerusalem Post",
+    "Middle East Eye",
+    "PressTV",
+    "Middle East Monitor",
+    "The Times Of India",
+    "MintPress News",
+    "Mondoweiss"
+  ],
+  "real-time": ["ACLED (Armed Conflict Location & Event Data)"]
+}
