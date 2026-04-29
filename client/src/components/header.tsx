@@ -21,15 +21,8 @@ export const Header = () => {
 
       <div className="hidden md:flex items-center gap-8 font-mono text-[10px]">
         <div className="flex flex-col items-end">
-          <span className="text-slate-300 uppercase">Data_Stream</span>
-          <div className="flex items-center gap-2 text-emerald-500">
-            <Wifi size={10} />
-            <span>ENCRYPTED_SSL</span>
-          </div>
-        </div>
-        <div className="flex flex-col items-end">
           <span className="text-slate-300 uppercase">Region</span>
-          <span className="text-slate-100">GLOBAL</span>
+          <span className="text-emerald-500">GLOBAL</span>
         </div>
       </div>
 

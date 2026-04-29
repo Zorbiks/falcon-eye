@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
-import { Home, Expand, Minimize2 } from 'lucide-react'
+import { Bookmark, BookMarked, Home, Expand, Minimize2 } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import { useMapEvents } from 'react-leaflet'
@@ -50,7 +50,7 @@ const MapCenter = ({ mapRef }: { mapRef: React.MutableRefObject<any> }) => {
 }
 // Map
 export default function MainMap() {
-  const { events, isLoading, hasEventsLoaded } = useGlobalData()
+  const { events, isLoading, hasEventsLoaded, toggleBookmark, isBookmarked } = useGlobalData()
 
   const memoEvents = useMemo(() => events, [events])
 
@@ -59,6 +59,7 @@ export default function MainMap() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<AcledEvent | null>(null)
   const [zoom, setZoom] = useState(3)
+  const selectedEventBookmarkId = selectedEvent ? `event-${selectedEvent.rowKey}` : ''
 
   const legendItems = useMemo(() => {
     const uniqueSubTypes = new Map<string, AcledEvent>()
@@ -178,13 +179,35 @@ export default function MainMap() {
               </div>
 
               <div className="mt-auto border-t border-slate-800 bg-slate-950/95 px-5 py-4 backdrop-blur-sm">
-                <Button
-                  variant="outline"
-                  className="w-full border-slate-700 bg-transparent text-slate-200 hover:bg-slate-900"
-                  onClick={() => setSelectedEvent(null)}
-                >
-                  Close
-                </Button>
+                <div className="flex flex-col gap-3">
+                  <Button
+                    variant="outline"
+                    className="w-full border-slate-700 bg-transparent text-slate-200 hover:bg-slate-900"
+                    onClick={() =>
+                      toggleBookmark({
+                        id: selectedEventBookmarkId,
+                        kind: 'event',
+                        title: selectedEvent.eventType,
+                        subtitle: `${selectedEvent.subEventType} · ${selectedEvent.country}`,
+                      })
+                    }
+                  >
+                    {isBookmarked(selectedEventBookmarkId) ? (
+                      <BookMarked className="mr-2 h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <Bookmark className="mr-2 h-4 w-4" />
+                    )}
+                    {isBookmarked(selectedEventBookmarkId) ? 'Saved event' : 'Bookmark event'}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full border-slate-700 bg-transparent text-slate-200 hover:bg-slate-900"
+                    onClick={() => setSelectedEvent(null)}
+                  >
+                    Close
+                  </Button>
+                </div>
               </div>
             </div>
           ) : null}

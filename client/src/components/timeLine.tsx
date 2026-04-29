@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { Bookmark, BookMarked, ExternalLink } from 'lucide-react'
 import { useGlobalData } from '../context'
 import type { FeedCard } from '../types/feed'
 import {
@@ -16,7 +16,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
 import { TimelineSkeleton } from './loaders'
 
 export default function TimelineFeed() {
-  const { feedData, isFeedLoading, hasFeedLoaded } = useGlobalData()
+  const { feedData, isFeedLoading, hasFeedLoaded, toggleBookmark, isBookmarked } = useGlobalData()
   const [selectedEvent, setSelectedEvent] = useState<FeedCard | null>(null)
   const [visibleCount, setVisibleCount] = useState(8)
   const loadStep = 6
@@ -52,6 +52,7 @@ export default function TimelineFeed() {
     () => (selectedEvent ? formatPublishedDate(selectedEvent.publishedAt) : ''),
     [selectedEvent],
   )
+  const selectedBookmarkId = selectedEvent ? `feed-${selectedEvent.link}` : ''
 
   const handleTimelineScroll = (event: React.UIEvent<HTMLDivElement>) => {
     if (!hasMoreEvents) {
@@ -142,6 +143,26 @@ export default function TimelineFeed() {
 
               <div className="mt-auto border-t border-slate-800 bg-slate-950/95 px-5 py-4 backdrop-blur-sm">
                 <div className="flex flex-col gap-3">
+                  <Button
+                    variant="outline"
+                    className="w-full border-slate-700 bg-transparent text-slate-200 hover:bg-slate-900"
+                    onClick={() =>
+                      toggleBookmark({
+                        id: selectedBookmarkId,
+                        kind: 'feed',
+                        title: selectedEvent.title,
+                        subtitle: `${selectedEvent.sourceLabel} · ${selectedEvent.publishedLabel}`,
+                      })
+                    }
+                  >
+                    {isBookmarked(selectedBookmarkId) ? (
+                      <BookMarked className="mr-2 h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <Bookmark className="mr-2 h-4 w-4" />
+                    )}
+                    {isBookmarked(selectedBookmarkId) ? 'Saved article' : 'Bookmark article'}
+                  </Button>
+
                   <Button asChild className="w-full bg-sky-500 text-slate-950 hover:bg-sky-400">
                     <a href={selectedEvent.link} target="_blank" rel="noreferrer">
                       <ExternalLink className="mr-2 h-4 w-4" />
@@ -162,7 +183,7 @@ export default function TimelineFeed() {
         </DrawerContent>
       </Drawer>
 
-      <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 h-[560px] flex flex-col">
+      <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 h-[550px] flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-slate-200 text-xs font-semibold uppercase tracking-wider">
             Timeline <span className="text-slate-300 ml-1 font-mono">({feedEvents.length})</span>

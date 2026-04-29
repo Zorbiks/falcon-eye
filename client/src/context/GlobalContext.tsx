@@ -5,7 +5,15 @@ import { fetchAllEvents } from '../services/eventService'
 import { fetchNewsFeed } from '../services/feedService'
 import type { AcledEvent } from '../types/events'
 import type { FeedItem } from '../types/feed'
-import mockFeedData from 'src/data/feed-mock.json'
+import useLocalStorageState from 'src/hooks/use-localstorage-state'
+
+export type BookmarkItem = {
+  id: string
+  kind: 'event' | 'feed'
+  title: string
+  subtitle: string
+  savedAt: string
+}
 
 type GlobalContextValue = {
   events: AcledEvent[]
@@ -20,6 +28,9 @@ type GlobalContextValue = {
   hasFeedLoaded: boolean
   feedError: string | null
   fetchFeed: () => Promise<void>
+  bookmarks: BookmarkItem[]
+  toggleBookmark: (bookmark: Omit<BookmarkItem, 'savedAt'>) => void
+  isBookmarked: (id: string) => boolean
 }
 
 const GlobalContext = createContext<GlobalContextValue | undefined>(undefined)
@@ -35,6 +46,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [isFeedLoading, setIsFeedLoading] = useState(true)
   const [hasFeedLoaded, setHasFeedLoaded] = useState(false)
   const [feedError, setFeedError] = useState<string | null>(null)
+  const [bookmarks, setBookmarks] = useLocalStorageState<BookmarkItem[]>('falcon-eye-bookmarks', [])
 
   const fetchEvents = async () => {
     setIsLoading(true)
@@ -70,6 +82,29 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  const isBookmarked = useCallback((id: string) => bookmarks.some((bookmark) => bookmark.id === id), [bookmarks])
+
+  const toggleBookmark = useCallback(
+    (bookmark: Omit<BookmarkItem, 'savedAt'>) => {
+      setBookmarks((currentBookmarks) => {
+        const existingBookmark = currentBookmarks.find((item) => item.id === bookmark.id)
+
+        if (existingBookmark) {
+          return currentBookmarks.filter((item) => item.id !== bookmark.id)
+        }
+
+        return [
+          ...currentBookmarks,
+          {
+            ...bookmark,
+            savedAt: new Date().toISOString(),
+          },
+        ]
+      })
+    },
+    [setBookmarks],
+  )
+
   useEffect(() => {
     fetchEvents()
   }, [country])
@@ -92,10 +127,14 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       hasFeedLoaded,
       feedError,
       fetchFeed,
+      bookmarks,
+      toggleBookmark,
+      isBookmarked,
     }),
     [
       country,
       error,
+      bookmarks,
       events,
       feedData,
       feedError,
@@ -103,8 +142,10 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       hasFeedLoaded,
       isFeedLoading,
       isLoading,
+      isBookmarked,
       fetchEvents,
       fetchFeed,
+      toggleBookmark,
     ],
   )
 
