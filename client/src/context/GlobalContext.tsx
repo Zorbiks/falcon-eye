@@ -5,7 +5,6 @@ import { fetchAllEvents } from '../services/eventService'
 import { fetchNewsFeed } from '../services/feedService'
 import type { AcledEvent } from '../types/events'
 import type { FeedItem } from '../types/feed'
-import mockEventsData from 'src/data/event-mock.json'
 import mockFeedData from 'src/data/feed-mock.json'
 
 type GlobalContextValue = {
@@ -32,7 +31,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<string | null>(null)
   const [country, setCountry] = useState<string | null>(null)
 
-  const [feedData, setFeedData] = useState<FeedItem[]>(mockFeedData)
+  const [feedData, setFeedData] = useState<FeedItem[]>([])
   const [isFeedLoading, setIsFeedLoading] = useState(true)
   const [hasFeedLoaded, setHasFeedLoaded] = useState(false)
   const [feedError, setFeedError] = useState<string | null>(null)

@@ -3,7 +3,7 @@ import eventThemeRegistry from '../data/eventThemeRegistry.json'
 import sourcesData from '../data/sources.json'
 import { useGlobalData } from '../context'
 import type { CategoryStat, EventTheme } from '../types/categories'
-import { StatsSkeleton } from './loaders'
+import { EventPanelSkeleton } from './loaders'
 
 const SOURCE_GROUP_ORDER = ['western', 'regional', 'real-time'] as const
 
@@ -106,11 +106,7 @@ export default function StatsCard() {
   }
 
   if ((isLoading && !hasEventsLoaded) || (isFeedLoading && !hasFeedLoaded)) {
-    return (
-      <div aria-busy="true" aria-live="polite">
-        <StatsSkeleton />
-      </div>
-    )
+    return <EventPanelSkeleton />
   }
 
   return (
@@ -161,9 +157,6 @@ export default function StatsCard() {
               >
                 <span className="text-slate-400">{isGroupOpen(group.groupName) ? '⌄' : '›'}</span>
                 <span>{group.groupName}</span>
-                {group.groupName === 'Western' ? (
-                  <div className="h-1.5 w-1.5 rounded-full bg-orange-500 shadow-[0_0_5px_#f97316]" />
-                ) : null}
               </button>
 
               {isGroupOpen(group.groupName) ? (

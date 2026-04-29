@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Card } from 'src/components/ui/card'
 import { useGlobalData } from 'src/context'
-import { CompactCardSkeleton } from './loaders'
+import { CasualtiesCardSkeleton } from './loaders'
 
 const formatNumber = (value: number) => new Intl.NumberFormat().format(value)
 
@@ -49,11 +49,7 @@ export default function CasualtiesCard() {
   }, [events])
 
   if (isLoading && !hasEventsLoaded) {
-    return (
-      <div aria-busy="true" aria-live="polite">
-        <CompactCardSkeleton />
-      </div>
-    )
+    return <CasualtiesCardSkeleton />
   }
 
   return (

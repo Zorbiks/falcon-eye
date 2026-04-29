@@ -1,6 +1,14 @@
 import { Info } from 'lucide-react'
+import { useGlobalData } from 'src/context'
+import { ThreatAssessmentSkeleton } from './loaders'
 
 export default function EscalationCard() {
+  const { isLoading, hasEventsLoaded } = useGlobalData()
+
+  if (isLoading && !hasEventsLoaded) {
+    return <ThreatAssessmentSkeleton />
+  }
+
   return (
     <div className="bg-slate-950/80 border border-slate-800/70 rounded-2xl p-5 w-full shadow-2xl flex-1 min-w-fit">
       <div className="flex justify-between items-center mb-6">

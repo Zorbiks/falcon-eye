@@ -10,7 +10,6 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } f
 import { useGlobalData } from 'src/context'
 import { getEventStyle } from 'src/utils/getEventStyle'
 import { createCustomIcon } from 'src/utils/createCustomIcon'
-import { MapSkeleton } from './loaders'
 import type { AcledEvent } from 'src/types/events'
 
 const createClusterCustomIcon = (cluster: any) => {
@@ -94,14 +93,6 @@ export default function MainMap() {
     }
 
     await containerRef.current.requestFullscreen()
-  }
-
-  if (isLoading && !hasEventsLoaded) {
-    return (
-      <div aria-busy="true" aria-live="polite">
-        <MapSkeleton />
-      </div>
-    )
   }
 
   return (
@@ -242,56 +233,60 @@ export default function MainMap() {
         >
           <MapCenter mapRef={mapRef} />
 
-          <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png" />
+          <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
 
           <ZoomWatcher setZoom={setZoom} />
 
-          <MarkerClusterGroup
-            iconCreateFunction={createClusterCustomIcon}
-            chunkedLoading={true}
-            chunkInterval={100}
-            spiderfyOnMaxZoom={true}
-            showCoverageOnHover={false}
-          >
-            {memoEvents.map((event) => {
-              const style = getEventStyle(event.eventType, event.subEventType)
-              const icon = createCustomIcon(style)
+          {!isLoading && hasEventsLoaded && (
+            <MarkerClusterGroup
+              iconCreateFunction={createClusterCustomIcon}
+              chunkedLoading={true}
+              chunkInterval={100}
+              spiderfyOnMaxZoom={true}
+              showCoverageOnHover={false}
+            >
+              {memoEvents.map((event) => {
+                const style = getEventStyle(event.eventType, event.subEventType)
+                const icon = createCustomIcon(style)
 
-              return (
-                <Marker
-                  key={event.rowKey}
-                  position={[event.latitude, event.longitude]}
-                  icon={icon}
-                  eventHandlers={{
-                    click: () => setSelectedEvent(event),
-                  }}
-                />
-              )
-            })}
-          </MarkerClusterGroup>
+                return (
+                  <Marker
+                    key={event.rowKey}
+                    position={[event.latitude, event.longitude]}
+                    icon={icon}
+                    eventHandlers={{
+                      click: () => setSelectedEvent(event),
+                    }}
+                  />
+                )
+              })}
+            </MarkerClusterGroup>
+          )}
         </MapContainer>
       </div>
 
-      <div className="absolute left-0 bottom-2 z-[1000] ml-3">
-        <div
-          className="bg-slate-900/90 border border-slate-700 p-4 backdrop-blur-sm shadow-2xl rounded-lg max-h-[250px] overflow-y-auto"
-          onWheel={(e) => e.stopPropagation()}
-        >
-          <div className="flex flex-col gap-2 font-mono">
-            <div className="flex flex-col gap-1.5 text-[9px] text-slate-300">
-              {legendItems.map((event) => {
-                const style = getEventStyle(event.eventType, event.subEventType)
-                return (
-                  <div key={event.subEventType} className="flex items-center gap-2">
-                    <i className={`fa-solid ${style.icon} flex-shrink-0 w-4`} style={{ color: style.color }} />
-                    <span className="truncate">{event.subEventType}</span>
-                  </div>
-                )
-              })}
+      {!isLoading && hasEventsLoaded && (
+        <div className="absolute left-0 bottom-2 z-[1000] ml-3">
+          <div
+            className="bg-slate-900/90 border border-slate-700 p-4 backdrop-blur-sm shadow-2xl rounded-lg max-h-[250px] overflow-y-auto"
+            onWheel={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col gap-2 font-mono">
+              <div className="flex flex-col gap-1.5 text-[9px] text-slate-300">
+                {legendItems.map((event) => {
+                  const style = getEventStyle(event.eventType, event.subEventType)
+                  return (
+                    <div key={event.subEventType} className="flex items-center gap-2">
+                      <i className={`fa-solid ${style.icon} flex-shrink-0 w-4`} style={{ color: style.color }} />
+                      <span className="truncate">{event.subEventType}</span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

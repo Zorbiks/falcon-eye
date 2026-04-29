@@ -5,7 +5,6 @@ import { cn } from 'src/lib/utils'
 import { useGlobalData } from 'src/context'
 import eventThemeRegistry from 'src/data/eventThemeRegistry.json'
 import type { EventTheme, FilterCategory } from 'src/types/categories'
-import { FiltersSkeleton } from './loaders'
 
 const rawThemes = eventThemeRegistry as Record<string, EventTheme>
 const categoryColorMap = Object.entries(rawThemes)

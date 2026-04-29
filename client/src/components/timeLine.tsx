@@ -67,11 +67,7 @@ export default function TimelineFeed() {
   }
 
   if (isFeedLoading && !hasFeedLoaded) {
-    return (
-      <div aria-busy="true" aria-live="polite">
-        <TimelineSkeleton />
-      </div>
-    )
+    return <TimelineSkeleton />
   }
 
   return (
