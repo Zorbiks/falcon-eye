@@ -145,7 +145,7 @@ export default function TimelineFeed() {
                 <div className="flex flex-col gap-3">
                   <Button
                     variant="outline"
-                    className="w-full border-slate-700 bg-transparent text-slate-200 hover:bg-slate-900"
+                    className="w-full border-slate-700 bg-transparent hover:bg-slate-900 text-slate-200 hover:text-slate-200"
                     onClick={() =>
                       toggleBookmark({
                         id: selectedBookmarkId,
