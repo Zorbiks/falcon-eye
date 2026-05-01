@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { CheckCircle, Lock, UserCircle } from 'lucide-react'
-import { Button } from 'src/components/ui/button'
-import { Input } from 'src/components/ui/input'
-import { Label } from 'src/components/ui/label'
+import { Button } from 'src/components/pages/ui/button'
+import { Input } from 'src/components/pages/ui/input'
+import { Label } from 'src/components/pages/ui/label'
 import { useAuth } from 'src/context'
 
 export default function LoginPage() {

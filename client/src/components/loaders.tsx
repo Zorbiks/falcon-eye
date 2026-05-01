@@ -1,4 +1,4 @@
-import { Skeleton } from 'src/components/ui/skeleton'
+import { Skeleton } from 'src/components/pages/ui/skeleton'
 
 export function EventPanelSkeleton() {
   return (

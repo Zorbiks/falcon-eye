@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Card } from 'src/components/ui/card'
+import { Card } from 'src/components/pages/ui/card'
 import { useGlobalData } from 'src/context'
 import { CasualtiesCardSkeleton } from './loaders'
 
