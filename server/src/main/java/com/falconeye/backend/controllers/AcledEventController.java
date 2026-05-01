@@ -17,7 +17,6 @@ import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/events")
@@ -41,14 +40,17 @@ public class AcledEventController {
     }
 
     /**
-     * Search endpoint — returns events for a given year, month, and country.
+     * Search endpoint — returns events for a given year and month, with an optional country filter.
      *
      * If NO parameters are provided: returns all events from every country for
      * the latest year and month present in the dataset.
      *
-     * If parameters ARE provided: all three (country, year, month) are required.
+     * If parameters ARE provided: year and month are required; country is optional.
+     * - With country:    returns events for that country in the given year/month.
+     * - Without country: returns all events in the given year/month.
      *
      * Example: GET /api/events/search
+     * Example: GET /api/events/search?year=2015&month=12
      * Example: GET /api/events/search?country=israel&year=2015&month=12
      */
     @GetMapping("/search")
@@ -75,10 +77,10 @@ public class AcledEventController {
             return ResponseEntity.ok(events);
         }
 
-        // Partial params → reject; all three must be supplied together
-        if (!hasYear || !hasMonth || !hasCountry) {
+        // Year and month are required; reject if either is missing
+        if (!hasYear || !hasMonth) {
             return ResponseEntity.badRequest().body(new MessageResponse(
-                    "Error: when filtering, all three parameters are required: country, year, and month."));
+                    "Error: year and month are required. country is optional."));
         }
 
         // Validate ranges
@@ -91,10 +93,12 @@ public class AcledEventController {
                     .body(new MessageResponse("Error: year value is out of valid range."));
         }
 
-        YearMonth yearMonth  = YearMonth.of(year, month);
-        String startDate     = yearMonth.atDay(1).toString();
-        String endDate       = yearMonth.atEndOfMonth().toString();
-        String formattedCountry = titleCase(country);
+        YearMonth yearMonth = YearMonth.of(year, month);
+        String startDate    = yearMonth.atDay(1).toString();
+        String endDate      = yearMonth.atEndOfMonth().toString();
+
+        // country is optional — pass null to get all countries for the given period
+        String formattedCountry = hasCountry ? titleCase(country) : null;
 
         List<AcledEvent> events = hbaseService.searchEvents(formattedCountry, startDate, endDate);
 
