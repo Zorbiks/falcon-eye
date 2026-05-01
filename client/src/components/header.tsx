@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Button } from 'src/components/pages/ui/button'
+import { Button } from 'src/components/ui/button'
 import { Shield, Activity, Wifi } from 'lucide-react'
 
 export const Header = () => {

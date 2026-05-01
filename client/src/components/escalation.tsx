@@ -1,8 +1,8 @@
 import { Info } from 'lucide-react'
 import { useGlobalData } from 'src/context'
-import { Badge } from './pages/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from './pages/ui/card'
-import { Separator } from './pages/ui/separator'
+import { Badge } from './ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Separator } from './ui/separator'
 import { ThreatAssessmentSkeleton } from './loaders'
 
 export default function EscalationCard() {

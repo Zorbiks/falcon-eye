@@ -6,6 +6,7 @@ import { createRouter } from './router'
 import { AuthProvider, GlobalProvider } from './context'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import '@daypicker/react/style.css'
 
 export default function App() {
   const queryClient = useMemo(() => new QueryClient({}), [])

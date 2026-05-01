@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { Button } from 'src/components/pages/ui/button'
-import { Separator } from 'src/components/pages/ui/separator'
+import { Button } from 'src/components/ui/button'
+import { Separator } from 'src/components/ui/separator'
 import { cn } from 'src/lib/utils'
 import { useGlobalData } from 'src/context'
 import eventThemeRegistry from 'src/data/eventThemeRegistry.json'
