@@ -30,7 +30,6 @@ public class SecurityConfig {
                 // Public endpoints — no login required
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/events/**").permitAll()
-                .antMatchers("/api/news/**").permitAll()
                 // Bookmark endpoints — must be logged in (any role)
                 .antMatchers("/api/bookmarks/**").hasAnyRole("ADMIN", "USER")
                 // Admin endpoints — must have ADMIN role
