@@ -160,7 +160,8 @@ def fetch_feed(feed_meta: dict, timeout: int = 15) -> list[dict]:
     try:
         resp = requests.get(url, headers=HEADERS, timeout=timeout)
         resp.raise_for_status()
-        root = ET.fromstring(resp.content)
+        content = resp.content.lstrip(b'\xef\xbb\xbf').lstrip()
+        root = ET.fromstring(content)
     except requests.RequestException as exc:
         logger.warning("Network error fetching %s: %s", url, exc)
         return []
