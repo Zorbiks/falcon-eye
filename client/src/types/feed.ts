@@ -10,9 +10,4 @@ export interface FeedItem {
 export interface FeedCard extends FeedItem {
   sourceLabel: string
   publishedLabel: string
-  topic: string
-  severity: number
-  color: string
-  bgColor: string
-  borderColor: string
 }

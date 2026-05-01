@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
-import { Button } from 'src/components/ui/button'
-import { Separator } from 'src/components/ui/separator'
+import { Button } from 'src/components/pages/ui/button'
+import { Separator } from 'src/components/pages/ui/separator'
 import { cn } from 'src/lib/utils'
 import { useGlobalData } from 'src/context'
 import eventThemeRegistry from 'src/data/eventThemeRegistry.json'
 import type { EventTheme, FilterCategory } from 'src/types/categories'
+import FilterDrawer from './filterDrawer'
 
 const rawThemes = eventThemeRegistry as Record<string, EventTheme>
 const categoryColorMap = Object.entries(rawThemes)
@@ -22,10 +23,10 @@ const categoryColorMap = Object.entries(rawThemes)
 const registryCategories = Object.keys(categoryColorMap)
 const DEFAULT_CATEGORY_COLOR = rawThemes.default?.color ?? '#7F8C8D'
 
-const ranges = ['24h', '7d', '30d', 'All']
+const ranges = ['24h', '7 days', 'Two weeks']
 
 export default function Filters() {
-  const { events, isLoading, hasEventsLoaded } = useGlobalData()
+  const { events, isLoading } = useGlobalData()
 
   const { totalEvents, filterCategories } = useMemo(() => {
     const countsByCategory: Record<string, number> = { Other: 0 }
@@ -69,11 +70,11 @@ export default function Filters() {
   // Always render the filters UI, but disable interactions while the map data is loading
   const rootClass = cn(
     'flex items-center gap-3 bg-slate-950/80 rounded-xl p-2 w-full overflow-x-auto no-scrollbar',
-    isLoading && !hasEventsLoaded ? 'pointer-events-none opacity-60' : '',
+    isLoading ? 'pointer-events-none opacity-60' : '',
   )
 
   return (
-    <div className={rootClass} aria-busy={isLoading && !hasEventsLoaded} aria-live="polite">
+    <div className={rootClass} aria-busy={isLoading} aria-live="polite">
       <Button
         variant="secondary"
         className="bg-slate-800/70 text-slate-100 hover:bg-slate-800 border border-slate-600 h-8 text-xs font-medium px-4"
@@ -104,14 +105,13 @@ export default function Filters() {
       <Separator orientation="vertical" className="h-6 bg-slate-700 mx-2" />
 
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-bold text-slate-300 tracking-tighter mr-1 uppercase">Range</span>
         {ranges.map((range) => (
           <Button
             key={range}
             variant="ghost"
             className={cn(
               'h-7 px-3 text-[11px] font-mono border transition-all',
-              range === 'All'
+              range === '24h'
                 ? 'bg-slate-800 text-slate-100 border-slate-600'
                 : 'text-slate-300 border-transparent hover:border-slate-700 hover:slate-950/80',
             )}
@@ -120,6 +120,10 @@ export default function Filters() {
           </Button>
         ))}
       </div>
+
+      <Separator orientation="vertical" className="h-6 bg-slate-700 mx-2" />
+
+      <FilterDrawer />
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import axios from 'src/lib/axios'
-import type { AcledEvent, FetchEventsByDateRangeParams } from '../types/events'
-import data from 'src/data/event-mock.json'
+import type { AcledEvent, FetchAllEventsParams, FetchEventsByDateRangeParams } from '../types/events'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
@@ -35,10 +34,19 @@ export const fetchEventsByDateRange = async (
 }
 
 // Fetch all recent events
-export const fetchAllEvents = async (country?: string): Promise<AcledEvent[]> => {
+export const fetchAllEvents = async ({ year, month, country }: FetchAllEventsParams): Promise<AcledEvent[]> => {
   try {
-    const response = await axios.get(`/events/recent`, {
-      params: country ? { country } : {},
+    const params: FetchAllEventsParams = {
+      year,
+      month,
+    }
+
+    if (country) {
+      params.country = country
+    }
+
+    const response = await axios.get(`/events/search`, {
+      params,
     })
 
     return response.data

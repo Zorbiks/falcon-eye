@@ -4,9 +4,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import { useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
-import { Button } from './ui/button'
-import { Badge } from './ui/badge'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from './ui/drawer'
+import { Button } from './pages/ui/button'
+import { Badge } from './pages/ui/badge'
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from './pages/ui/drawer'
 import { useGlobalData } from 'src/context'
 import { getEventStyle } from 'src/utils/getEventStyle'
 import { createCustomIcon } from 'src/utils/createCustomIcon'
@@ -50,7 +50,7 @@ const MapCenter = ({ mapRef }: { mapRef: React.MutableRefObject<any> }) => {
 }
 // Map
 export default function MainMap() {
-  const { events, isLoading, hasEventsLoaded, toggleBookmark, isBookmarked } = useGlobalData()
+  const { events, isLoading, toggleBookmark, isBookmarked } = useGlobalData()
 
   const memoEvents = useMemo(() => events, [events])
 
@@ -260,7 +260,7 @@ export default function MainMap() {
 
           <ZoomWatcher setZoom={setZoom} />
 
-          {!isLoading && hasEventsLoaded && (
+          {!isLoading && events?.length && (
             <MarkerClusterGroup
               iconCreateFunction={createClusterCustomIcon}
               chunkedLoading={true}
@@ -288,7 +288,7 @@ export default function MainMap() {
         </MapContainer>
       </div>
 
-      {!isLoading && hasEventsLoaded && (
+      {!isLoading && events?.length ? (
         <div className="absolute left-0 bottom-2 z-[1000] ml-3">
           <div
             className="bg-slate-900/90 border border-slate-700 p-4 backdrop-blur-sm shadow-2xl rounded-lg max-h-[250px] overflow-y-auto"
@@ -309,7 +309,7 @@ export default function MainMap() {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   )
 }

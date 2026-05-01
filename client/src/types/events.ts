@@ -22,3 +22,19 @@ export interface FetchEventsByDateRangeParams {
   endMonth: number
   country?: string
 }
+
+export interface FetchAllEventsParams {
+  year: number
+  month: number
+  country?: string
+}
+
+export type EventRegionFilter = 'All' | 'Middle East' | 'North Africa'
+
+export interface EventFilters {
+  region: EventRegionFilter
+  country: string
+  eventTypes: string[]
+  startDate: Date | null
+  endDate: Date | null
+}
