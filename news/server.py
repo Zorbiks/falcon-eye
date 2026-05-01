@@ -9,7 +9,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -37,12 +37,9 @@ async def get_news():
             status_code=503,
             detail="News feed not yet available — fetcher may still be running.",
         )
-    # FileResponse streams the file directly; no Python JSON parsing overhead.
-    return FileResponse(
-        path=DATA_FILE,
-        media_type="application/json",
-        filename=None,          # inline, not attachment
-    )
+    import json
+    payload = json.loads(DATA_FILE.read_text())
+    return JSONResponse(content=payload["articles"])
 
 
 @app.get("/api/health")
