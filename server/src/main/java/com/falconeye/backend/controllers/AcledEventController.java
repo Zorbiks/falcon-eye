@@ -40,13 +40,14 @@ public class AcledEventController {
     }
 
     /**
-     * Search endpoint — returns events for a given year and month, with an optional country filter.
+     * Search endpoint — returns events for a given year and month, with an optional
+     * country filter.
      *
      * If NO parameters are provided: returns all events from every country for
      * the latest year and month present in the dataset.
      *
      * If parameters ARE provided: year and month are required; country is optional.
-     * - With country:    returns events for that country in the given year/month.
+     * - With country: returns events for that country in the given year/month.
      * - Without country: returns all events in the given year/month.
      *
      * Example: GET /api/events/search
@@ -59,8 +60,8 @@ public class AcledEventController {
             @RequestParam(required = false) Integer month,
             @RequestParam(required = false) String country) {
 
-        boolean hasYear    = year != null;
-        boolean hasMonth   = month != null;
+        boolean hasYear = year != null;
+        boolean hasMonth = month != null;
         boolean hasCountry = country != null && !country.isBlank();
 
         // No params → default to the latest year-month in the dataset (all countries)
@@ -68,7 +69,7 @@ public class AcledEventController {
             LocalDate latestDate = hbaseService.getLatestDateInDatabase();
             YearMonth latest = YearMonth.from(latestDate);
             String startDate = latest.atDay(1).toString();
-            String endDate   = latest.atEndOfMonth().toString();
+            String endDate = latest.atEndOfMonth().toString();
             List<AcledEvent> events = hbaseService.searchEvents(null, startDate, endDate);
             if (events.isEmpty()) {
                 return ResponseEntity.ok(new MessageResponse(
@@ -94,8 +95,8 @@ public class AcledEventController {
         }
 
         YearMonth yearMonth = YearMonth.of(year, month);
-        String startDate    = yearMonth.atDay(1).toString();
-        String endDate      = yearMonth.atEndOfMonth().toString();
+        String startDate = yearMonth.atDay(1).toString();
+        String endDate = yearMonth.atEndOfMonth().toString();
 
         // country is optional — pass null to get all countries for the given period
         String formattedCountry = hasCountry ? titleCase(country) : null;

@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { fetchAllEvents, fetchEventsByDateRange } from '../services/eventService'
+import { getEvents } from '../services/eventService'
 import { fetchNewsFeed } from '../services/feedService'
 import type { AcledEvent, EventFilters, EventRegionFilter } from '../types/events'
 import type { FeedItem } from '../types/feed'
@@ -121,21 +121,8 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null)
 
     try {
-      const resolvedCountry = resolveCountryFilter(filters)
-      const hasDateRange = isDateRangeSelected(filters)
-
-      const response = hasDateRange
-        ? await fetchEventsByDateRange(
-            (filters.startDate ?? filters.endDate ?? new Date()).getFullYear(),
-            (filters.endDate ?? filters.startDate ?? new Date()).getFullYear(),
-            (filters.startDate ?? filters.endDate ?? new Date()).getMonth() + 1,
-            (filters.endDate ?? filters.startDate ?? new Date()).getMonth() + 1,
-            resolvedCountry,
-          )
-        : await fetchAllEvents({
-            ...getCurrentEventPeriod(),
-            country: resolvedCountry,
-          })
+      // add the params object later
+      const response = await getEvents({})
 
       setEvents(filterEventsLocally(response, filters))
     } catch (fetchError) {

@@ -75,7 +75,7 @@ export default function FilterDrawer() {
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 gap-2 text-slate-400 hover:text-white">
+        <Button variant="ghost" size="sm" className="h-8 gap-2 text-slate-400">
           <ListFilter className="h-4 w-4" />
           Advanced Filters
         </Button>

@@ -15,17 +15,9 @@ export interface AcledEvent {
   longitude: number
 }
 
-export interface FetchEventsByDateRangeParams {
-  startYear: number
-  endYear: number
-  startMonth: number
-  endMonth: number
-  country?: string
-}
-
-export interface FetchAllEventsParams {
-  year: number
-  month: number
+export interface FetchEventsParams {
+  year?: number
+  month?: number
   country?: string
 }
 
