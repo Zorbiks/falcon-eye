@@ -16,7 +16,6 @@
 
   "Violence against civilians|Attack": { "icon": "fa-skull-crossbones", "color": "#9B59B6" },
   "Violence against civilians|Abduction/forced disappearance": { "icon": "fa-user-lock", "color": "#4B0082" },
-  "Violence against civilians|Sexual violence": { "icon": "fa-person-circle-exclamation", "color": "#FF69B4" },
 
   "Riots|Mob violence": { "icon": "fa-burst", "color": "#D35400" },
   "Riots|Violent demonstration": { "icon": "fa-user-ninja", "color": "#E74C3C" },
