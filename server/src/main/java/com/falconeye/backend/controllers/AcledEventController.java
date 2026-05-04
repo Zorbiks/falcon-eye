@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,71 +39,85 @@ public class AcledEventController {
     }
 
     /**
-     * Search endpoint — returns events for a given year and month, with an optional
-     * country filter.
+     * Search endpoint — all five parameters are required.
      *
-     * If NO parameters are provided: returns all events from every country for
-     * the latest year and month present in the dataset.
+     * @param region     "all"  or an exact region name
+     * @param country    "all"  or an exact country name
+     * @param eventType  "all"  or an exact event_type value   (param name: event-type)
+     * @param from       start date  (inclusive, format: YYYY-MM-DD)
+     * @param to         end   date  (inclusive, format: YYYY-MM-DD)
      *
-     * If parameters ARE provided: year and month are required; country is optional.
-     * - With country: returns events for that country in the given year/month.
-     * - Without country: returns all events in the given year/month.
-     *
-     * Example: GET /api/events/search
-     * Example: GET /api/events/search?year=2015&month=12
-     * Example: GET /api/events/search?country=israel&year=2015&month=12
+     * Example: GET /api/events/search?region=all&country=all&event-type=all&from=2020-01-01&to=2020-12-31
+     * Example: GET /api/events/search?region=all&country=Israel&event-type=Battles&from=2023-01-01&to=2023-06-30
      */
     @GetMapping("/search")
     public ResponseEntity<?> searchEvents(
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month,
-            @RequestParam(required = false) String country) {
+            @RequestParam String region,
+            @RequestParam String country,
+            @RequestParam(name = "event-type") String eventType,
+            @RequestParam String from,
+            @RequestParam String to) {
 
-        boolean hasYear = year != null;
-        boolean hasMonth = month != null;
-        boolean hasCountry = country != null && !country.isBlank();
-
-        // No params → default to the latest year-month in the dataset (all countries)
-        if (!hasYear && !hasMonth && !hasCountry) {
-            LocalDate latestDate = hbaseService.getLatestDateInDatabase();
-            YearMonth latest = YearMonth.from(latestDate);
-            String startDate = latest.atDay(1).toString();
-            String endDate = latest.atEndOfMonth().toString();
-            List<AcledEvent> events = hbaseService.searchEvents(null, startDate, endDate);
-            if (events.isEmpty()) {
-                return ResponseEntity.ok(new MessageResponse(
-                        "No events found for the latest period (" + latest + ")."));
-            }
-            return ResponseEntity.ok(events);
-        }
-
-        // Year and month are required; reject if either is missing
-        if (!hasYear || !hasMonth) {
+        // Validate that none of the required params are blank
+        if (region.isBlank() || country.isBlank() || eventType.isBlank()
+                || from.isBlank() || to.isBlank()) {
             return ResponseEntity.badRequest().body(new MessageResponse(
-                    "Error: year and month are required. country is optional."));
+                    "Error: all parameters are required — region, country, event-type, from, to."));
         }
 
-        // Validate ranges
-        if (month < 1 || month > 12) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error: month must be between 1 and 12."));
+        // Validate date formats
+        LocalDate fromDate, toDate;
+        try {
+            fromDate = LocalDate.parse(from);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(
+                    "Error: 'from' date is invalid. Expected format: YYYY-MM-DD (e.g. 2020-05-09)."));
         }
-        if (year < 1900 || year > 2100) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error: year value is out of valid range."));
+        try {
+            toDate = LocalDate.parse(to);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(
+                    "Error: 'to' date is invalid. Expected format: YYYY-MM-DD (e.g. 2020-05-09)."));
         }
 
-        YearMonth yearMonth = YearMonth.of(year, month);
-        String startDate = yearMonth.atDay(1).toString();
-        String endDate = yearMonth.atEndOfMonth().toString();
+        if (fromDate.isAfter(toDate)) {
+            return ResponseEntity.badRequest().body(new MessageResponse(
+                    "Error: 'from' date must not be after 'to' date."));
+        }
 
-        // country is optional — pass null to get all countries for the given period
-        String formattedCountry = hasCountry ? titleCase(country) : null;
-
-        List<AcledEvent> events = hbaseService.searchEvents(formattedCountry, startDate, endDate);
+        // No casing normalization needed here — HBaseService handles title-casing
+        // country (for row-key matching) and uses case-insensitive regex filters
+        // for region and event-type, so callers can pass any casing they like.
+        List<AcledEvent> events = hbaseService.searchEvents(
+                region.trim(), country.trim(), eventType.trim(), from, to);
 
         if (events.isEmpty()) {
             return ResponseEntity.ok(new MessageResponse("No events found for the given search criteria."));
+        }
+
+        return ResponseEntity.ok(events);
+    }
+
+    /**
+     * Returns all events that fall within the last 30 days of data present in
+     * the dataset (not the current wall-clock date — the latest date recorded
+     * in HBase).
+     *
+     * Example: GET /api/events/recent
+     */
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentEvents() {
+        LocalDate latestDate = hbaseService.getLatestDateInDatabase();
+        LocalDate thirtyDaysAgo = latestDate.minusDays(30);
+
+        String startDate = thirtyDaysAgo.toString();
+        String endDate   = latestDate.toString();
+
+        List<AcledEvent> events = hbaseService.searchEvents(null, null, null, startDate, endDate);
+
+        if (events.isEmpty()) {
+            return ResponseEntity.ok(new MessageResponse(
+                    "No events found in the last 30 days of data (up to " + latestDate + ")."));
         }
 
         return ResponseEntity.ok(events);

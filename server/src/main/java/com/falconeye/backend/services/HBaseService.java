@@ -116,47 +116,53 @@ public class HBaseService {
     }
 
     /**
-     * Unified search logic handling Country and Date ranges.
+     * Unified search logic handling Region, Country, EventType and Date ranges.
+     *
+     * @param region    exact region name, or null / "all" to skip region filtering
+     * @param country   exact country name, or null / "all" to skip country filtering
+     * @param eventType exact event_type value, or null / "all" to skip event-type filtering
+     * @param startDate inclusive lower bound  (YYYY-MM-DD)
+     * @param endDate   inclusive upper bound  (YYYY-MM-DD)
      */
-    public List<AcledEvent> searchEvents(String country, String startDate, String endDate) {
+    public List<AcledEvent> searchEvents(String region, String country,
+                                         String eventType,
+                                         String startDate, String endDate) {
         List<AcledEvent> events = new ArrayList<>();
+
+        boolean hasCountry = country   != null && !country.equalsIgnoreCase("all");
+        boolean hasRegion  = region    != null && !region.equalsIgnoreCase("all");
+        boolean hasType    = eventType != null && !eventType.equalsIgnoreCase("all");
 
         try (Table table = hbaseConnection.getTable(TableName.valueOf(TABLE_NAME))) {
             Scan scan = new Scan();
 
-            if (country != null) {
-                // OPTIMIZED SCAN: If country is provided, we can use StartRow and StopRow.
-                // RowKey format: Country#YYYY-MM-DD#ID
-                // Example Start: Mauritania#1997-03-08
-                // Example Stop: Mauritania#1997-10-25~ (The '~' ensures it includes everything
-                // on the end date)
-                byte[] startRow = Bytes.toBytes(country + "#" + startDate);
-                byte[] stopRow = Bytes.toBytes(country + "#" + endDate + "~");
-
+            if (hasCountry) {
+                // Row-key optimisation: RowKey = Country#YYYY-MM-DD#ID
+                // titleCase normalises the country so casing doesn't matter to callers.
+                String normCountry = titleCase(country);
+                byte[] startRow = Bytes.toBytes(normCountry + "#" + startDate);
+                byte[] stopRow  = Bytes.toBytes(normCountry + "#" + endDate + "~");
                 scan.withStartRow(startRow);
                 scan.withStopRow(stopRow);
-
             } else {
-                // FULL TABLE SCAN: No country provided, we must check dates across all
-                // countries.
-                FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+                // Full table scan filtered by date range
+                FilterList fl = new FilterList(FilterList.Operator.MUST_PASS_ALL);
 
-                // CompareOperator handles standard YYYY-MM-DD string sorting perfectly
                 SingleColumnValueFilter startFilter = new SingleColumnValueFilter(
-                        CF, Bytes.toBytes("week"), CompareOperator.GREATER_OR_EQUAL, Bytes.toBytes(startDate));
-                startFilter.setFilterIfMissing(true); // Ignore rows that somehow lack a week column
+                        CF, Bytes.toBytes("week"),
+                        CompareOperator.GREATER_OR_EQUAL, Bytes.toBytes(startDate));
+                startFilter.setFilterIfMissing(true);
 
                 SingleColumnValueFilter endFilter = new SingleColumnValueFilter(
-                        CF, Bytes.toBytes("week"), CompareOperator.LESS_OR_EQUAL, Bytes.toBytes(endDate));
+                        CF, Bytes.toBytes("week"),
+                        CompareOperator.LESS_OR_EQUAL, Bytes.toBytes(endDate));
                 endFilter.setFilterIfMissing(true);
 
-                filterList.addFilter(startFilter);
-                filterList.addFilter(endFilter);
-
-                scan.setFilter(filterList);
+                fl.addFilter(startFilter);
+                fl.addFilter(endFilter);
+                scan.setFilter(fl);
             }
 
-            // Execute the scan
             try (ResultScanner scanner = table.getScanner(scan)) {
                 for (Result result : scanner) {
                     events.add(mapResultToEvent(result));
@@ -166,7 +172,26 @@ public class HBaseService {
             throw new RuntimeException("Error querying HBase for search", e);
         }
 
+        // Apply region and event-type filters in-memory using simple lowercase comparison.
+        // This is the same pattern used for country via titleCase on the row key.
+        if (hasRegion) {
+            String regionLower = region.trim().toLowerCase();
+            events.removeIf(e -> e.getRegion() == null || !e.getRegion().toLowerCase().equals(regionLower));
+        }
+        if (hasType) {
+            String typeLower = eventType.trim().toLowerCase();
+            events.removeIf(e -> e.getEventType() == null || !e.getEventType().toLowerCase().equals(typeLower));
+        }
+
         return events;
+    }
+
+    /**
+     * Convenience overload used by legacy callers (stats methods) that only
+     * need country + date range filtering.
+     */
+    public List<AcledEvent> searchEvents(String country, String startDate, String endDate) {
+        return searchEvents(null, country, null, startDate, endDate);
     }
 
     // Aggregates statistics for a specific country dashboard.
@@ -375,4 +400,17 @@ public class HBaseService {
             return null;
         }
     }
+
+
+    /**
+     * Converts a string to title-case. Used to normalise country names so
+     * they match the HBase row-key format (e.g. "israel" -> "Israel").
+     */
+    private String titleCase(String value) {
+        if (value == null || value.isBlank()) return value;
+        return java.util.Arrays.stream(value.trim().split("\\s+"))
+                .map(w -> w.isEmpty() ? w : Character.toUpperCase(w.charAt(0)) + w.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
+    }
+
 }
