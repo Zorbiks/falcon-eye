@@ -19,6 +19,24 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'src/components/ui/select'
 import { Label } from 'src/components/ui/label'
 
+const NORTH_AFRICA_COUNTRIES = ['Algeria', 'Egypt', 'Libya', 'Morocco', 'Tunisia']
+
+const MIDDLE_EAST_COUNTRIES = [
+  'Bahrain',
+  'Iran',
+  'Iraq',
+  'Israel',
+  'Jordan',
+  'Kuwait',
+  'Lebanon',
+  'Oman',
+  'Qatar',
+  'Saudi Arabia',
+  'Syria',
+  'United Arab Emirates',
+  'Yemen',
+]
+
 const MENA_COUNTRIES = [
   'Algeria',
   'Bahrain',
@@ -53,6 +71,33 @@ export default function FilterDrawer() {
   const [region, setRegion] = React.useState<string>('all')
   const [country, setCountry] = React.useState<string>('all')
   const [selectedEvents, setSelectedEvents] = React.useState<string[]>([])
+
+  const filteredCountries = React.useMemo(() => {
+    if (region === 'na') {
+      return NORTH_AFRICA_COUNTRIES
+    }
+
+    if (region === 'me') {
+      return MIDDLE_EAST_COUNTRIES
+    }
+
+    return MENA_COUNTRIES
+  }, [region])
+
+  React.useEffect(() => {
+    if (country === 'all') {
+      return
+    }
+
+    const selectedCountryName = country
+      .split('-')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
+
+    if (!filteredCountries.includes(selectedCountryName)) {
+      setCountry('all')
+    }
+  }, [country, filteredCountries])
 
   // Defaulting to 2026 for your Falcon Eye project context
   const [range, setRange] = React.useState<DateRange | undefined>({
@@ -95,7 +140,7 @@ export default function FilterDrawer() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <Label className="text-[10px] uppercase font-semibold text-slate-400">Region</Label>
-                  <Select defaultValue={region} onValueChange={setRegion}>
+                  <Select value={region} onValueChange={setRegion}>
                     <SelectTrigger className="bg-slate-900/50 border-slate-800 h-9">
                       <SelectValue placeholder="Region" />
                     </SelectTrigger>
@@ -107,13 +152,13 @@ export default function FilterDrawer() {
                   </Select>
 
                   <Label className="text-[10px] uppercase font-semibold text-slate-400">Country</Label>
-                  <Select defaultValue={country} onValueChange={setCountry}>
+                  <Select value={country} onValueChange={setCountry}>
                     <SelectTrigger className="bg-slate-900/50 border-slate-800 h-9">
                       <SelectValue placeholder="Country" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-slate-800 text-slate-100 h-64">
                       <SelectItem value="all">All</SelectItem>
-                      {MENA_COUNTRIES.map((c) => {
+                      {filteredCountries.map((c) => {
                         const slug = c
                           .toLowerCase()
                           .replace(/\s+/g, '-')

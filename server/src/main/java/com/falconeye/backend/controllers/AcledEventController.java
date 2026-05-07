@@ -41,14 +41,16 @@ public class AcledEventController {
     /**
      * Search endpoint — all five parameters are required.
      *
-     * @param region     "all"  or an exact region name
-     * @param country    "all"  or an exact country name
-     * @param eventType  "all"  or an exact event_type value   (param name: event-type)
-     * @param from       start date  (inclusive, format: YYYY-MM-DD)
-     * @param to         end   date  (inclusive, format: YYYY-MM-DD)
+     * @param region    "all" or an exact region name
+     * @param country   "all" or an exact country name
+     * @param eventType "all" or an exact event_type value (param name: event-type)
+     * @param from      start date (inclusive, format: YYYY-MM-DD)
+     * @param to        end date (inclusive, format: YYYY-MM-DD)
      *
-     * Example: GET /api/events/search?region=all&country=all&event-type=all&from=2020-01-01&to=2020-12-31
-     * Example: GET /api/events/search?region=all&country=Israel&event-type=Battles&from=2023-01-01&to=2023-06-30
+     *                  Example: GET
+     *                  /api/events/search?region=all&country=all&event-type=all&from=2020-01-01&to=2020-12-31
+     *                  Example: GET
+     *                  /api/events/search?region=all&country=Israel&event-type=Battles&from=2023-01-01&to=2023-06-30
      */
     @GetMapping("/search")
     public ResponseEntity<?> searchEvents(
@@ -111,7 +113,7 @@ public class AcledEventController {
         LocalDate thirtyDaysAgo = latestDate.minusDays(30);
 
         String startDate = thirtyDaysAgo.toString();
-        String endDate   = latestDate.toString();
+        String endDate = latestDate.toString();
 
         List<AcledEvent> events = hbaseService.searchEvents(null, null, null, startDate, endDate);
 
