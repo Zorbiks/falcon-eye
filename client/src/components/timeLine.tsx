@@ -61,7 +61,7 @@ export default function TimelineFeed() {
         onClose={() => setSelectedEvent(null)}
       />
 
-      <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 h-[550px] w-full flex flex-col">
+      <div className="flex h-[500px] w-full flex-col rounded-xl border border-slate-800/70 bg-slate-950/80 p-4 sm:h-[550px]">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-slate-200 text-xs font-semibold uppercase tracking-wider">
             Timeline <span className="text-slate-300 ml-1 font-mono">({feedEvents.length})</span>

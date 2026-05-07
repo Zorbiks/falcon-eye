@@ -1,37 +1,18 @@
 import { useMemo, useState } from 'react'
-import eventThemeRegistry from '../data/eventThemeRegistry.json'
 import sourcesData from '../data/sources.json'
 import { useGlobalData } from '../context'
-import type { CategoryStat, EventTheme } from '../types/categories'
+import {
+  categoryColorMap,
+  DEFAULT_CATEGORY_COLOR,
+  rawThemes,
+  registryCategories,
+  SOURCE_GROUP_LABELS,
+  SOURCE_GROUP_ORDER,
+} from '../canstants/stats'
 import { EventPanelSkeleton } from './loaders'
 
-const SOURCE_GROUP_ORDER = ['western', 'regional', 'real-time'] as const
-
-const SOURCE_GROUP_LABELS: Record<string, string> = {
-  western: 'Western',
-  regional: 'Regional',
-  'real-time': 'Real-time',
-}
-
-const rawThemes = eventThemeRegistry as Record<string, EventTheme>
-const categoryColorMap = Object.entries(rawThemes)
-  .filter(([key]) => key !== 'default' && key.includes('|'))
-  .reduce<Record<string, string>>((acc, [key, value]) => {
-    const [category] = key.split('|')
-    const normalizedCategory = category.trim()
-
-    if (!acc[normalizedCategory]) {
-      acc[normalizedCategory] = value.color
-    }
-    return acc
-  }, {})
-
-const registryCategories = Object.keys(categoryColorMap)
-
-const DEFAULT_CATEGORY_COLOR = rawThemes.default?.color ?? '#7F8C8D'
-
 export default function StatsCard() {
-  const { events, feedData, isLoading, hasEventsLoaded, isFeedLoading, hasFeedLoaded } = useGlobalData()
+  const { events, isLoading, isFeedLoading, hasFeedLoaded } = useGlobalData()
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
 
   const { categoryStats, totalEvents } = useMemo(() => {
@@ -105,12 +86,12 @@ export default function StatsCard() {
     }))
   }
 
-  if ((isLoading && !hasEventsLoaded) || (isFeedLoading && !hasFeedLoaded)) {
+  if (isLoading || (isFeedLoading && !hasFeedLoaded)) {
     return <EventPanelSkeleton />
   }
 
   return (
-    <div className="flex flex-col gap-4 h-full min-w-[500px]">
+    <div className="flex h-full w-full min-w-0 flex-col gap-4">
       <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 shadow-2xl">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-slate-200 text-xs font-semibold uppercase tracking-wider">Categories</h3>

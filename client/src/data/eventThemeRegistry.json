@@ -1,33 +1,133 @@
 {
-  "Battles|Armed clash": { "icon": "fa-person-rifle", "color": "#8B0000" },
-  "Battles|Government regains territory": { "icon": "fa-flag-checkered", "color": "#27AE60" },
-  "Battles|Non-state actor overtakes territory": { "icon": "fa-fort-awesome", "color": "#E74C3C" },
+  "Battles|Armed clash": {
+    "icon": "fa-person-rifle",
+    "color": "#8B0000",
+    "description": "Two or more armed groups engaged in direct combat, exchanging fire or fighting each other in a defined location or area."
+  },
+  "Battles|Government regains territory": {
+    "icon": "fa-flag-checkered",
+    "color": "#27AE60",
+    "description": "State military or security forces successfully recaptured and reasserted control over an area previously held by an opposing armed group."
+  },
+  "Battles|Non-state actor overtakes territory": {
+    "icon": "fa-fort-awesome",
+    "color": "#E74C3C",
+    "description": "An armed non-state group — such as a militia, rebel faction, or insurgency — seized control of a location or territory previously held by another party."
+  },
 
-  "Protests|Peaceful protest": { "icon": "fa-users-line", "color": "#2ECC71" },
-  "Protests|Protest with intervention": { "icon": "fa-person-military-to-person", "color": "#F39C12" },
-  "Protests|Excessive force against protesters": { "icon": "fa-person-falling-burst", "color": "#C0392B" },
+  "Protests|Peaceful protest": {
+    "icon": "fa-users-line",
+    "color": "#2ECC71",
+    "description": "Civilians gathered publicly to express political, social, or economic grievances through non-violent means such as marches, demonstrations, sit-ins, or rallies."
+  },
+  "Protests|Protest with intervention": {
+    "icon": "fa-person-military-to-person",
+    "color": "#F39C12",
+    "description": "A protest was met with intervention by security forces or authorities, such as dispersal attempts, arrests, or the use of crowd-control measures."
+  },
+  "Protests|Excessive force against protesters": {
+    "icon": "fa-person-falling-burst",
+    "color": "#C0392B",
+    "description": "Security or state forces responded to protesters with disproportionate or lethal force, resulting in injuries, deaths, or widespread harm to demonstrators."
+  },
 
-  "Explosions/Remote violence|Air/drone strike": { "icon": "fa-jet-fighter-up", "color": "#2980B9" },
-  "Explosions/Remote violence|Shelling/artillery/missile attack": { "icon": "fa-missile", "color": "#E67E22" },
-  "Explosions/Remote violence|Suicide bomb": { "icon": "fa-vest-patches", "color": "#000000" },
-  "Explosions/Remote violence|Remote explosive/landmine/IED": { "icon": "fa-land-mine-on", "color": "#7F8C8D" },
-  "Explosions/Remote violence|Grenade": { "icon": "fa-explosion", "color": "#D35400" },
-  "Explosions/Remote violence|Chemical weapon": { "icon": "fa-biohazard", "color": "#00FF00" },
+  "Explosions/Remote violence|Air/drone strike": {
+    "icon": "fa-jet-fighter-up",
+    "color": "#2980B9",
+    "description": "A location was struck by munitions delivered from the air, whether by manned aircraft such as jets or helicopters, or by unmanned aerial vehicles (drones)."
+  },
+  "Explosions/Remote violence|Shelling/artillery/missile attack": {
+    "icon": "fa-missile",
+    "color": "#E67E22",
+    "description": "Heavy, indirect-fire weapons such as artillery, mortars, rocket launchers, or ballistic missiles were used to strike a target from a distance."
+  },
+  "Explosions/Remote violence|Suicide bomb": {
+    "icon": "fa-vest-patches",
+    "color": "#000000",
+    "description": "An attacker deliberately detonated explosives strapped to or carried on their body, sacrificing their own life in order to inflict maximum casualties on a target."
+  },
+  "Explosions/Remote violence|Remote explosive/landmine/IED": {
+    "icon": "fa-land-mine-on",
+    "color": "#7F8C8D",
+    "description": "A concealed or planted explosive device — such as a landmine, booby trap, or improvised explosive device (IED) — detonated either remotely or upon contact."
+  },
+  "Explosions/Remote violence|Grenade": {
+    "icon": "fa-explosion",
+    "color": "#D35400",
+    "description": "A handheld explosive device was thrown or launched at a target, causing a localized but potentially deadly blast in the immediate vicinity."
+  },
+  "Explosions/Remote violence|Chemical weapon": {
+    "icon": "fa-biohazard",
+    "color": "#00FF00",
+    "description": "Toxic or harmful chemical agents were deployed as weapons against people, causing injury, illness, or death through exposure to poisonous substances."
+  },
 
-  "Violence against civilians|Attack": { "icon": "fa-skull-crossbones", "color": "#9B59B6" },
-  "Violence against civilians|Abduction/forced disappearance": { "icon": "fa-user-lock", "color": "#4B0082" },
+  "Violence against civilians|Attack": {
+    "icon": "fa-skull-crossbones",
+    "color": "#9B59B6",
+    "description": "Armed actors directly targeted non-combatant civilians with violence — including shootings, stabbings, beatings, or other physical assaults intended to harm or kill."
+  },
+  "Violence against civilians|Abduction/forced disappearance": {
+    "icon": "fa-user-lock",
+    "color": "#4B0082",
+    "description": "Civilians were unlawfully seized, kidnapped, or made to disappear — often by armed groups or state actors — without legal process, transparency, or acknowledgment."
+  },
 
-  "Riots|Mob violence": { "icon": "fa-burst", "color": "#D35400" },
-  "Riots|Violent demonstration": { "icon": "fa-user-ninja", "color": "#E74C3C" },
+  "Riots|Mob violence": {
+    "icon": "fa-burst",
+    "color": "#D35400",
+    "description": "A crowd or mob engaged in collective violence, attacking people, properties, or communities — often spontaneously and with significant destruction or casualties."
+  },
+  "Riots|Violent demonstration": {
+    "icon": "fa-user-ninja",
+    "color": "#E74C3C",
+    "description": "A protest or public demonstration escalated into violence, with participants engaging in physical confrontations, property damage, or clashes with security forces."
+  },
 
-  "Strategic developments|Arrests": { "icon": "fa-handcuffs", "color": "#2C3E50" },
-  "Strategic developments|Looting/property destruction": { "icon": "fa-house-chimney-crack", "color": "#F1C40F" },
-  "Strategic developments|Agreement": { "icon": "fa-file-signature", "color": "#16A085" },
-  "Strategic developments|Headquarters or base established": { "icon": "fa-tents", "color": "#34495E" },
-  "Strategic developments|Change to group/activity": { "icon": "fa-arrows-spin", "color": "#95A5A6" },
-  "Strategic developments|Disrupted weapons use": { "icon": "fa-shield-slash", "color": "#BDC3C7" },
-  "Strategic developments|Non-violent transfer of territory": { "icon": "fa-map-location-dot", "color": "#3498DB" },
-  "Strategic developments|Other": { "icon": "fa-ellipsis", "color": "#BDC3C7" },
+  "Strategic developments|Arrests": {
+    "icon": "fa-handcuffs",
+    "color": "#2C3E50",
+    "description": "One or more individuals were detained, arrested, or taken into custody by authorities or armed actors, often in connection with conflict-related or politically motivated activity."
+  },
+  "Strategic developments|Looting/property destruction": {
+    "icon": "fa-house-chimney-crack",
+    "color": "#F1C40F",
+    "description": "Property was deliberately damaged, burned, or destroyed, or goods and assets were looted from homes, businesses, or public infrastructure during conflict or unrest."
+  },
+  "Strategic developments|Agreement": {
+    "icon": "fa-file-signature",
+    "color": "#16A085",
+    "description": "Two or more parties reached, signed, or publicly announced a formal agreement — such as a ceasefire, peace deal, political accord, or negotiated arrangement."
+  },
+  "Strategic developments|Headquarters or base established": {
+    "icon": "fa-tents",
+    "color": "#34495E",
+    "description": "An armed group, military force, or political actor set up a new operational headquarters, base of operations, or command post in a specific location."
+  },
+  "Strategic developments|Change to group/activity": {
+    "icon": "fa-arrows-spin",
+    "color": "#95A5A6",
+    "description": "A significant internal or operational change occurred within an armed group or movement, such as a leadership transition, merger, split, rebranding, or shift in tactics."
+  },
+  "Strategic developments|Disrupted weapons use": {
+    "icon": "fa-shield-slash",
+    "color": "#BDC3C7",
+    "description": "An attempt to use, transport, or deploy weapons was intercepted, blocked, or prevented — including seizures of arms caches, dismantled bomb plots, or neutralized threats."
+  },
+  "Strategic developments|Non-violent transfer of territory": {
+    "icon": "fa-map-location-dot",
+    "color": "#3498DB",
+    "description": "Control or administration of a geographic area changed hands between parties through negotiation, withdrawal, or agreement rather than through armed combat or coercion."
+  },
+  "Strategic developments|Other": {
+    "icon": "fa-ellipsis",
+    "color": "#BDC3C7",
+    "description": "A strategically significant development was recorded that does not fit neatly into any other defined subtype, but nonetheless represents a meaningful shift in the conflict landscape."
+  },
 
-  "default": { "icon": "fa-location-dot", "color": "#7F8C8D" }
+  "default": {
+    "icon": "fa-location-dot",
+    "color": "#7F8C8D",
+    "description": "A conflict or security event was recorded at this location, but its event type and sub-event category have not yet been mapped to a specific classification in this system."
+  }
 }

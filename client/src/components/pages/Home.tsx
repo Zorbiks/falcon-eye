@@ -19,9 +19,13 @@ export default function Home() {
 
       <MainMap />
 
-      <div className="flex items-stretch justify-between gap-5 w-[95%]">
-        <TimelineFeed />
-        <StatsCard />
+      <div className="flex w-[95%] flex-col gap-5 lg:flex-row lg:items-stretch">
+        <div className="w-full lg:flex-1">
+          <TimelineFeed />
+        </div>
+        <div className="w-full lg:max-w-[500px]">
+          <StatsCard />
+        </div>
       </div>
     </section>
   )
