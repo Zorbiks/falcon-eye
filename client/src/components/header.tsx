@@ -36,7 +36,7 @@ export const Header = () => {
             <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
             <div className="relative h-2 w-2 bg-emerald-500 rounded-full"></div>
           </div>
-          <span className="text-[10px] font-bold text-slate-100 tracking-widest uppercase">Live Analysis</span>
+          <span className="text-[10px] font-bold text-slate-100 tracking-widest uppercase">Analysis</span>
         </div>
       </div>
     </header>

@@ -6,7 +6,7 @@ import { CasualtiesCardSkeleton } from './loaders'
 const formatNumber = (value: number) => new Intl.NumberFormat().format(value)
 
 export default function CasualtiesCard() {
-  const { events, isLoading, hasEventsLoaded } = useGlobalData()
+  const { events, isLoading } = useGlobalData()
 
   const metricData = useMemo(() => {
     const totals = events.reduce(
@@ -48,7 +48,7 @@ export default function CasualtiesCard() {
     ]
   }, [events])
 
-  if (isLoading && !hasEventsLoaded) {
+  if (isLoading) {
     return <CasualtiesCardSkeleton />
   }
 

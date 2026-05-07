@@ -1,12 +1,63 @@
-import { Info } from 'lucide-react'
+import { Info, TrendingUp, TrendingDown } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useGlobalData } from 'src/context'
 import { Badge } from './ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Separator } from './ui/separator'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { ThreatAssessmentSkeleton } from './loaders'
 
+const getRiskLevel = (fatalities: number, criticalCount: number) => {
+  if (fatalities > 120 || criticalCount > 20)
+    return { label: 'High', color: 'text-red-500', bg: 'bg-red-950/30', border: 'border-red-500/50' }
+  if (fatalities > 40 || criticalCount > 8)
+    return { label: 'Elevated', color: 'text-orange-500', bg: 'bg-orange-950/30', border: 'border-orange-500/50' }
+  return { label: 'Stable', color: 'text-green-500', bg: 'bg-green-950/30', border: 'border-green-500/50' }
+}
+
 export default function EscalationCard() {
-  const { isLoading } = useGlobalData()
+  const { events, isLoading } = useGlobalData()
+  const [infoOpen, setInfoOpen] = useState(false)
+
+  const snapshot = useMemo(() => {
+    const totalFatalities = events.reduce((sum, e) => sum + (Number(e.fatalities) || 0), 0)
+    const criticalCount = events.filter((e) => e.critical).length
+    const uniqueCountries = new Set(events.map((e) => e.country)).size
+    const totalEvents = events.length
+
+    // Top 3 hotspot countries by event count
+    const countryEventMap: Record<string, number> = {}
+    events.forEach((e) => {
+      countryEventMap[e.country] = (countryEventMap[e.country] || 0) + 1
+    })
+    const topHotspots = Object.entries(countryEventMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([country]) => country)
+
+    // Simple trend: compare first half vs second half
+    const midpoint = Math.floor(events.length / 2)
+    const firstHalf = events.slice(0, midpoint)
+    const secondHalf = events.slice(midpoint)
+    const firstHalfFatalities = firstHalf.reduce((sum, e) => sum + (Number(e.fatalities) || 0), 0)
+    const secondHalfFatalities = secondHalf.reduce((sum, e) => sum + (Number(e.fatalities) || 0), 0)
+    const trendPercent =
+      firstHalfFatalities > 0
+        ? Math.round(((secondHalfFatalities - firstHalfFatalities) / firstHalfFatalities) * 100)
+        : 0
+    const isTrendingUp = trendPercent > 0
+
+    const riskLevel = getRiskLevel(totalFatalities, criticalCount)
+
+    return {
+      totalEvents,
+      uniqueCountries,
+      topHotspots,
+      trendPercent: Math.abs(trendPercent),
+      isTrendingUp,
+      riskLevel,
+    }
+  }, [events])
 
   if (isLoading) {
     return <ThreatAssessmentSkeleton />
@@ -16,74 +67,70 @@ export default function EscalationCard() {
     <Card className="w-full flex-1 min-w-fit rounded-2xl border border-slate-800/70 bg-slate-950/80 p-5 shadow-2xl">
       <CardHeader className="mb-6 flex flex-row items-center justify-between space-y-0 p-0">
         <div className="flex items-center gap-2 text-zinc-400">
-          <CardTitle className="text-sm font-semibold tracking-tight text-zinc-400">Threat Assessment</CardTitle>
-          <Info size={14} className="opacity-50" />
+          <CardTitle className="text-sm font-semibold tracking-tight text-zinc-400">Operational Snapshot</CardTitle>
+          <Popover open={infoOpen} onOpenChange={setInfoOpen}>
+            <PopoverTrigger asChild>
+              <button className="cursor-help">
+                <Info size={14} className="opacity-50 hover:opacity-100 transition-opacity" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 text-sm bg-slate-900 border-slate-700">
+              <p className="text-zinc-300">
+                Quick overview of what's happening right now: total number of events, how many countries are affected,
+                whether it's getting worse or better, and how serious things are.
+              </p>
+            </PopoverContent>
+          </Popover>
         </div>
         <Badge
           variant="outline"
-          className="border-orange-500/50 bg-orange-950/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-orange-500"
+          className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${snapshot.riskLevel.border} ${snapshot.riskLevel.bg} ${snapshot.riskLevel.color}`}
         >
-          High Risk
+          {snapshot.riskLevel.label}
         </Badge>
       </CardHeader>
 
       <CardContent className="space-y-4 p-0">
-        <div className="flex items-center gap-10">
-          <div className="relative flex flex-col items-center">
-            <svg className="h-20 w-32">
-              <path
-                d="M 10 70 A 50 50 0 0 1 110 70"
-                fill="none"
-                stroke="#18181b"
-                strokeWidth="10"
-                strokeLinecap="round"
-              />
-              <path
-                d="M 10 70 A 50 50 0 0 1 110 70"
-                fill="none"
-                stroke="#f97316"
-                strokeWidth="10"
-                strokeLinecap="round"
-                strokeDasharray="157"
-                strokeDashoffset="65"
-                className="shadow-[0_0_10px_#f97316]"
-              />
-            </svg>
-            <span className="absolute bottom-1 text-3xl font-bold font-mono text-orange-500">58</span>
-          </div>
-
-          <div className="flex-1 space-y-4">
-            <div>
-              <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-                Pipeline Analytics
-              </span>
-              <div className="flex items-center gap-2 text-red-500">
-                <span className="text-lg font-bold">↑ Critical Shift</span>
+        <div className="flex flex-col gap-4">
+          {/* Key Metrics Row */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3">
+              <p className="text-zinc-500 text-[9px] uppercase font-bold">Total Events</p>
+              <p className="text-2xl font-bold text-zinc-100">{snapshot.totalEvents}</p>
+            </div>
+            <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3">
+              <p className="text-zinc-500 text-[9px] uppercase font-bold">Countries</p>
+              <p className="text-2xl font-bold text-zinc-100">{snapshot.uniqueCountries}</p>
+            </div>
+            <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3">
+              <p className="text-zinc-500 text-[9px] uppercase font-bold">Trend</p>
+              <div className="flex items-center gap-1">
+                {snapshot.isTrendingUp ? (
+                  <TrendingUp size={16} className="text-red-500" />
+                ) : (
+                  <TrendingDown size={16} className="text-green-500" />
+                )}
+                <p className={`text-lg font-bold ${snapshot.isTrendingUp ? 'text-red-500' : 'text-green-500'}`}>
+                  {snapshot.isTrendingUp ? '+' : '-'}
+                  {snapshot.trendPercent}%
+                </p>
               </div>
             </div>
+          </div>
 
-            <Separator className="bg-slate-800/70" />
+          <Separator className="bg-slate-800/70" />
 
-            <ul className="space-y-2 text-[11px] font-medium text-zinc-400">
-              <li className="flex items-start gap-2">
-                <span className="text-zinc-600">—</span>
-                <span>
-                  MapReduce calculated severity: <span className="text-zinc-200">6.2/10</span> across{' '}
-                  <span className="text-zinc-200">1.2M points</span>
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-zinc-600">—</span>
-                <span>
-                  HBase ingress: <span className="text-zinc-200">241 events</span> detected in current{' '}
-                  <span className="text-zinc-200">24h batch</span>
-                </span>
-              </li>
-              <li className="flex items-start gap-2 italic text-zinc-500">
-                <span className="text-zinc-600">—</span>
-                <span>Latest anomaly: Persistent kinetic activity in maritime corridors (Strait of Hormuz)</span>
-              </li>
-            </ul>
+          {/* Top Hotspots */}
+          <div>
+            <p className="text-zinc-500 text-[10px] uppercase font-bold mb-2">Top Hotspots</p>
+            <div className="space-y-1">
+              {snapshot.topHotspots.map((country, idx) => (
+                <div key={country} className="flex items-center gap-2 text-[11px]">
+                  <span className="text-zinc-600 font-bold">{idx + 1}.</span>
+                  <span className="text-zinc-300">{country}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </CardContent>
