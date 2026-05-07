@@ -101,6 +101,19 @@ export default function MainMap() {
       ref={containerRef}
       className="relative mx-auto flex h-[700px] w-[95%] flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-950 fullscreen:w-full fullscreen:h-full"
     >
+      {isLoading ? (
+        <style>{`
+          @keyframes mapLoadingOpacity {
+            0% {
+              opacity: 0.25;
+            }
+            100% {
+              opacity: 0.85;
+            }
+          }
+        `}</style>
+      ) : null}
+
       <Drawer
         open={Boolean(selectedEvent)}
         onOpenChange={(open: boolean) => !open && setSelectedEvent(null)}
@@ -244,8 +257,8 @@ export default function MainMap() {
       </div>
 
       <div
-        className="w-full flex-1 overflow-hidden[&_.leaflet-bar]:border-zinc-800 [&_.leaflet-bar]:shadow-none [&_.leaflet-bar_a]:bg-zinc-900 [&_.leaflet-bar_a]:text-zinc-400 [&_.leaflet-bar_a]:border-zinc-800 [&_.leaflet-bar_a:hover]:bg-emerald-500/20 [&_.leaflet-bar_a:hover]:text-emerald-400 [&_.leaflet-control-zoom-in]:font-mono [&_.leaflet-control-zoom-out]:font-mono
-      "
+        className="relative w-full flex-1 overflow-hidden [&_.leaflet-bar]:border-zinc-800 [&_.leaflet-bar]:shadow-none [&_.leaflet-bar_a]:bg-zinc-900 [&_.leaflet-bar_a]:text-zinc-400 [&_.leaflet-bar_a]:border-zinc-800 [&_.leaflet-bar_a:hover]:bg-emerald-500/20 [&_.leaflet-bar_a:hover]:text-emerald-400 [&_.leaflet-control-zoom-in]:font-mono [&_.leaflet-control-zoom-out]:font-mono"
+        style={isLoading ? { animation: 'mapLoadingOpacity .75s ease-in-out infinite alternate' } : undefined}
       >
         <MapContainer
           center={[51.505, -0.09]}

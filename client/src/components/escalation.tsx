@@ -64,10 +64,12 @@ export default function EscalationCard() {
   }
 
   return (
-    <Card className="w-full flex-1 min-w-fit rounded-2xl border border-slate-800/70 bg-slate-950/80 p-5 shadow-2xl">
-      <CardHeader className="mb-6 flex flex-row items-center justify-between space-y-0 p-0">
+    <Card className="w-full rounded-2xl border border-slate-800/70 bg-slate-950/80 p-4 shadow-2xl sm:p-5">
+      <CardHeader className="mb-6 flex flex-col items-start justify-between gap-3 space-y-0 p-0 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2 text-zinc-400">
-          <CardTitle className="text-sm font-semibold tracking-tight text-zinc-400">Operational Snapshot</CardTitle>
+          <CardTitle className="text-sm font-semibold tracking-tight text-zinc-400 sm:text-base">
+            Operational Snapshot
+          </CardTitle>
           <Popover open={infoOpen} onOpenChange={setInfoOpen}>
             <PopoverTrigger asChild>
               <button className="cursor-help">
@@ -93,7 +95,7 @@ export default function EscalationCard() {
       <CardContent className="space-y-4 p-0">
         <div className="flex flex-col gap-4">
           {/* Key Metrics Row */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3">
               <p className="text-zinc-500 text-[9px] uppercase font-bold">Total Events</p>
               <p className="text-2xl font-bold text-zinc-100">{snapshot.totalEvents}</p>
@@ -123,7 +125,7 @@ export default function EscalationCard() {
           {/* Top Hotspots */}
           <div>
             <p className="text-zinc-500 text-[10px] uppercase font-bold mb-2">Top Hotspots</p>
-            <div className="space-y-1">
+            <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-1">
               {snapshot.topHotspots.map((country, idx) => (
                 <div key={country} className="flex items-center gap-2 text-[11px]">
                   <span className="text-zinc-600 font-bold">{idx + 1}.</span>

@@ -12,7 +12,7 @@ export default function Home() {
         <Filters />
       </div>
 
-      <div className="flex justify-between gap-5 w-[95%]">
+      <div className="flex w-[95%] flex-col gap-5 lg:flex-row lg:items-stretch">
         <EscalationCard />
         <CasualtiesCard />
       </div>

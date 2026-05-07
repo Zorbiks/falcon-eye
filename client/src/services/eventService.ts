@@ -1,5 +1,5 @@
 import api from 'src/lib/eventsAPI'
-import type { AcledEvent, FetchEventsParams, SearchEventsParams } from '../types/events'
+import type { AcledEvent, SearchEventsParams } from '../types/events'
 
 type ApiMessageResponse = {
   message: string

@@ -53,16 +53,16 @@ export default function CasualtiesCard() {
   }
 
   return (
-    <Card className="bg-slate-950/80 border-slate-800/70 p-4 rounded-2xl w-full max-w-[600px] flex-auto">
-      <div className="flex items-center gap-3 mb-4">
+    <Card className="w-full rounded-2xl border-slate-800/70 bg-slate-950/80 p-4">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <h3 className="text-zinc-300 text-sm font-semibold">Casualties</h3>
         <p className="text-zinc-500 text-[10px] uppercase tracking-tight">
           ACLED event-derived metrics
-          <span className="text-emerald-500 ml-2">• high confidence</span>
+          <span className="ml-2 text-emerald-500">• high confidence</span>
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {metricData.map((item) => (
           <div key={item.label} className="bg-slate-950 border border-slate-800/70 p-4 rounded-xl shadow-inner">
             <p className="text-zinc-500 text-[11px] font-medium mb-1">{item.label}</p>
