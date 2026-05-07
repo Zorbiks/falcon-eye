@@ -6,9 +6,9 @@ import { Separator } from './ui/separator'
 import { ThreatAssessmentSkeleton } from './loaders'
 
 export default function EscalationCard() {
-  const { isLoading, hasEventsLoaded } = useGlobalData()
+  const { isLoading } = useGlobalData()
 
-  if (isLoading && !hasEventsLoaded) {
+  if (isLoading) {
     return <ThreatAssessmentSkeleton />
   }
 

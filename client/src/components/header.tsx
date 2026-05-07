@@ -13,16 +13,7 @@ export const Header = () => {
           <h1 className="text-sm font-black uppercase tracking-tighter leading-none text-slate-100">
             Falcon <span className="text-emerald-500">Eye</span>
           </h1>
-          <p className="text-[10px] font-mono text-slate-300 leading-none mt-1">
-            Open-source tracking · refreshed continuously
-          </p>
-        </div>
-      </div>
-
-      <div className="hidden md:flex items-center gap-8 font-mono text-[10px]">
-        <div className="flex flex-col items-end">
-          <span className="text-slate-300 uppercase">Region</span>
-          <span className="text-emerald-500">GLOBAL</span>
+          <p className="text-[10px] font-mono text-slate-300 leading-none mt-2">Open-source tracking</p>
         </div>
       </div>
 

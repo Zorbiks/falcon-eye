@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { getEvents } from '../services/eventService'
+import { getRecentEvents } from '../services/eventService'
 import { fetchNewsFeed } from '../services/feedService'
 import type { AcledEvent, EventFilters, EventRegionFilter } from '../types/events'
 import type { FeedItem } from '../types/feed'
@@ -121,8 +121,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null)
 
     try {
-      // add the params object later
-      const response = await getEvents({})
+      const response = await getRecentEvents()
 
       setEvents(filterEventsLocally(response, filters))
     } catch (fetchError) {
