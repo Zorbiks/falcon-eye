@@ -31,13 +31,19 @@ export const Header = () => {
             <Link to="/signup">Sign up</Link>
           </Button>
         </div>
-        <div className="flex items-center gap-2 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-full">
-          <div className="relative h-2 w-2">
-            <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
-            <div className="relative h-2 w-2 bg-emerald-500 rounded-full"></div>
-          </div>
-          <span className="text-[10px] font-bold text-slate-100 tracking-widest uppercase">Analysis</span>
-        </div>
+        <Button
+          asChild
+          variant="outline"
+          className="border-slate-700 bg-slate-950/70 text-slate-100 hover:bg-slate-900 hover:text-white gap-2"
+        >
+          <Link to="/analysis" className="flex items-center gap-2 px-3 py-1.5">
+            <div className="relative h-2 w-2">
+              <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
+              <div className="relative h-2 w-2 bg-emerald-500 rounded-full"></div>
+            </div>
+            <span className="text-[10px] font-bold text-slate-100 tracking-widest uppercase">Analysis</span>
+          </Link>
+        </Button>
       </div>
     </header>
   )

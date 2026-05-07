@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom'
 import Layout from 'src/layout'
 import Home from 'src/components/pages/Home'
+import Analysis from 'src/components/pages/Analysis'
 import ErrorPage from 'src/components/pages/ErrorPage'
 import Login from 'src/components/pages/login'
 import Signup from 'src/components/pages/signup'
@@ -18,6 +19,11 @@ export const routerObjects: AppRouteObject[] = [
   {
     path: '/home',
     Component: Home,
+    useLayout: true,
+  },
+  {
+    path: '/analysis',
+    Component: Analysis,
     useLayout: true,
   },
   {

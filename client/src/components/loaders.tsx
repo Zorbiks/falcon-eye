@@ -1,9 +1,8 @@
 import { Skeleton } from 'src/components/ui/skeleton'
 
-export function EventPanelSkeleton() {
+export function CategoriesStatsCardSkeleton() {
   return (
-    <div className="flex flex-col gap-4 h-full min-w-[500px]">
-      {/* Categories card */}
+    <div className="flex h-full w-full min-w-0 flex-col gap-4">
       <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 shadow-2xl">
         <div className="flex justify-between items-center mb-6">
           <Skeleton className="h-2.5 w-20 bg-slate-800" />
@@ -24,40 +23,52 @@ export function EventPanelSkeleton() {
           ))}
         </div>
       </div>
+    </div>
+  )
+}
 
-      {/* Sources card */}
-      <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 flex-1">
-        <div className="flex justify-between items-center mb-4">
-          <Skeleton className="h-2.5 w-14 bg-slate-800" />
-          <Skeleton className="h-2.5 w-16 bg-slate-800" />
-        </div>
-
-        <div className="space-y-4">
-          {/* One expanded group */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-2.5 w-2.5 rounded-sm bg-slate-800" />
-              <Skeleton className="h-2.5 w-28 bg-slate-800" />
-            </div>
-            <div className="ml-4 border-l border-slate-800 pl-4 space-y-2">
-              {[140, 110].map((w, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Skeleton className="h-2 w-2 rounded-full bg-slate-700 flex-shrink-0" />
-                  <Skeleton className="h-2.5 bg-slate-800" style={{ width: w }} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Two collapsed groups */}
-          {[120, 88].map((w, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <Skeleton className="h-2.5 w-2.5 rounded-sm bg-slate-800" />
-              <Skeleton className="h-2.5 bg-slate-800" style={{ width: w }} />
-            </div>
-          ))}
-        </div>
+export function SourcesSkeleton() {
+  return (
+    <div className="bg-slate-950/80 border border-slate-800/70 rounded-xl p-4 flex-1">
+      <div className="flex justify-between items-center mb-4">
+        <Skeleton className="h-2.5 w-14 bg-slate-800" />
+        <Skeleton className="h-2.5 w-16 bg-slate-800" />
       </div>
+
+      <div className="space-y-4">
+        {/* One expanded group */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-2.5 w-2.5 rounded-sm bg-slate-800" />
+            <Skeleton className="h-2.5 w-28 bg-slate-800" />
+          </div>
+          <div className="ml-4 border-l border-slate-800 pl-4 space-y-2">
+            {[140, 110].map((w, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Skeleton className="h-2 w-2 rounded-full bg-slate-700 flex-shrink-0" />
+                <Skeleton className="h-2.5 bg-slate-800" style={{ width: w }} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Two collapsed groups */}
+        {[120, 88].map((w, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <Skeleton className="h-2.5 w-2.5 rounded-sm bg-slate-800" />
+            <Skeleton className="h-2.5 bg-slate-800" style={{ width: w }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function EventPanelSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 h-full min-w-[500px]">
+      <CategoriesStatsCardSkeleton />
+      <SourcesSkeleton />
     </div>
   )
 }

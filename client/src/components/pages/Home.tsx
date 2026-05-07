@@ -1,6 +1,7 @@
 import MainMap from '../map'
 import TimelineFeed from '../timeLine'
-import StatsCard from '../stats'
+import CategoriesStatsCard from '../CategoriesStatsCard'
+import Sources from '../sources'
 import Filters from 'src/components/filters'
 import CasualtiesCard from '../casulaties'
 import EscalationCard from '../escalation'
@@ -19,12 +20,17 @@ export default function Home() {
 
       <MainMap />
 
-      <div className="flex w-[95%] flex-col gap-5 lg:flex-row lg:items-stretch">
-        <div className="w-full lg:flex-1">
+      <div className="w-[95%] flex flex-col gap-5 lg:grid lg:grid-cols-[1fr_500px] lg:gap-5">
+        <div className="order-1 lg:col-start-2 lg:row-start-1">
+          <CategoriesStatsCard />
+        </div>
+
+        <div className="order-2 lg:col-start-1 lg:row-start-1 lg:row-span-2">
           <TimelineFeed />
         </div>
-        <div className="w-full lg:max-w-[500px]">
-          <StatsCard />
+
+        <div className="order-3 lg:col-start-2 lg:row-start-2">
+          <Sources />
         </div>
       </div>
     </section>
