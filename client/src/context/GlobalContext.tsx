@@ -6,6 +6,7 @@ import { fetchNewsFeed } from '../services/feedService'
 import type { AcledEvent, EventFilters, EventRegionFilter } from '../types/events'
 import type { FeedItem } from '../types/feed'
 import useLocalStorageState from 'src/hooks/use-localstorage-state'
+import { filterEventsClientSide, RangeOption } from '../lib/eventFilter'
 
 export type BookmarkItem = {
   id: string
@@ -18,6 +19,7 @@ export type BookmarkItem = {
 type GlobalContextValue = {
   events: AcledEvent[]
   isLoading: boolean
+  originalEvents: AcledEvent[]
   error: string | null
   country: string | null
   setCountry: (country: string | null) => void
@@ -25,6 +27,7 @@ type GlobalContextValue = {
   eventFilters: EventFilters
   applyEventFilters: (filters: EventFilters) => Promise<void>
   resetEventFilters: () => Promise<void>
+  applyLocalFilters: (category: string, range?: RangeOption) => void
   feedData: FeedItem[] | []
   isFeedLoading: boolean
   hasFeedLoaded: boolean
@@ -72,6 +75,7 @@ const normalizeEventType = (value: string) => value.trim().toLowerCase()
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [events, setEvents] = useState<AcledEvent[]>([])
+  const [originalEvents, setOriginalEvents] = useState<AcledEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [eventFilters, setEventFilters] = useState<EventFilters>(defaultEventFilters)
@@ -123,10 +127,13 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await getRecentEvents()
 
+      setOriginalEvents(response)
+
       setEvents(filterEventsLocally(response, filters))
     } catch (fetchError) {
       console.error('Failed to fetch map events:', fetchError)
       setError('Failed to fetch map events.')
+      setOriginalEvents([])
       setEvents([])
     } finally {
       setIsLoading(false)
@@ -142,6 +149,13 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     setEventFilters(defaultEventFilters)
     await fetchEvents(defaultEventFilters)
   }, [])
+
+  const applyLocalFilters = useCallback(
+    (category: string, range: RangeOption = 'All') => {
+      setEvents(filterEventsClientSide(originalEvents, category, range))
+    },
+    [originalEvents],
+  )
 
   const setCountry = useCallback((country: string | null) => {
     setEventFilters((current) => ({
@@ -201,6 +215,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const value = useMemo(
     () => ({
       events,
+      originalEvents,
       isLoading,
       error,
       country: eventFilters.country === 'All' ? null : eventFilters.country,
@@ -217,12 +232,14 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       bookmarks,
       toggleBookmark,
       isBookmarked,
+      applyLocalFilters,
     }),
     [
       eventFilters,
       error,
       bookmarks,
       events,
+      originalEvents,
       feedData,
       feedError,
       hasFeedLoaded,

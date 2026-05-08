@@ -1,4 +1,5 @@
 import { Bookmark, BookMarked, ExternalLink } from 'lucide-react'
+import { useMemo } from 'react'
 
 import type { FeedCard } from '../types/feed'
 import { formatPublishedDate } from '../utils/timelineFeed'
@@ -22,6 +23,16 @@ export default function TimelineDrawer({
   onClose,
 }: TimelineDrawerProps) {
   const publishedDate = event ? formatPublishedDate(event.publishedAt) : ''
+
+  // create a safe, truncated description for the drawer
+  const maxDescriptionLength = 400
+  const { truncatedDescription, hasMore } = useMemo(() => {
+    if (!event?.description) return { truncatedDescription: '', hasMore: false }
+    const cleaned = event.description.replace(/\s+/g, ' ').trim()
+    const hasMoreLocal = cleaned.length > maxDescriptionLength
+    const truncated = hasMoreLocal ? cleaned.slice(0, maxDescriptionLength).trim() + '...' : cleaned
+    return { truncatedDescription: truncated, hasMore: hasMoreLocal }
+  }, [event])
 
   return (
     <Drawer open={Boolean(event)} onOpenChange={(open: boolean) => !open && onClose()} direction="right">
@@ -54,7 +65,12 @@ export default function TimelineDrawer({
                 <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Description
                 </div>
-                <p className="text-sm leading-7 text-slate-300">{event.description}</p>
+                <p className="text-sm leading-7 text-slate-300">{truncatedDescription}</p>
+                {hasMore ? (
+                  <div className="mt-3 text-sm text-slate-400">
+                    The article is truncated here — open the full article to read the complete content.
+                  </div>
+                ) : null}
               </div>
 
               <div className="mb-6 grid gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-sm">

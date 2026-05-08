@@ -7,6 +7,7 @@ import { useGlobalData } from 'src/context'
 import eventThemeRegistry from 'src/data/eventThemeRegistry.json'
 import type { EventTheme, FilterCategory } from 'src/types/categories'
 import FilterDrawer from './filterDrawer'
+import { RangeOption } from 'src/lib/eventFilter'
 
 const rawThemes = eventThemeRegistry as Record<string, EventTheme>
 const categoryColorMap = Object.entries(rawThemes)
@@ -24,14 +25,14 @@ const categoryColorMap = Object.entries(rawThemes)
 const registryCategories = Object.keys(categoryColorMap)
 const DEFAULT_CATEGORY_COLOR = rawThemes.default?.color ?? '#7F8C8D'
 
-const ranges = ['24h', '7 days', 'Two weeks']
+const ranges: RangeOption[] = ['All', '24h', '7 days', 'Two weeks']
 
 export default function Filters() {
-  const { events, isLoading } = useGlobalData()
+  const { events, isLoading, applyLocalFilters } = useGlobalData()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [selectedRange, setSelectedRange] = useState<string>('24h')
+  const [selectedRange, setSelectedRange] = useState<RangeOption>('All')
 
-  const { totalEvents, filterCategories } = useMemo(() => {
+  const { filterCategories } = useMemo(() => {
     const countsByCategory: Record<string, number> = { Other: 0 }
     let total = 0
 
@@ -53,24 +54,19 @@ export default function Filters() {
       }
     })
 
-    const categories: FilterCategory[] = Object.entries(countsByCategory)
-      .map(([label, count]) => ({
-        label,
-        count,
-        color: label === 'Other' ? DEFAULT_CATEGORY_COLOR : categoryColorMap[label] ?? DEFAULT_CATEGORY_COLOR,
-      }))
-      .filter((category) => category.label !== 'Other')
-      .sort((a, b) => {
-        return b.count - a.count
-      })
+    const categories: FilterCategory[] = registryCategories.map((label) => ({
+      label,
+      count: countsByCategory[label] ?? 0,
+      color: categoryColorMap[label] ?? DEFAULT_CATEGORY_COLOR,
+    }))
+
+    console.log(countsByCategory)
 
     return {
-      totalEvents: total,
       filterCategories: categories,
     }
   }, [events])
 
-  // Always render the filters UI, but disable interactions while the map data is loading
   const rootClass = cn(
     'flex w-full flex-col gap-2 rounded-xl bg-slate-950/80 p-2 md:flex-row md:items-center md:gap-3',
     isLoading ? 'pointer-events-none opacity-60' : '',
@@ -80,13 +76,24 @@ export default function Filters() {
     <div className={rootClass} aria-busy={isLoading} aria-live="polite">
       <Button
         variant="secondary"
-        className="h-8 w-full justify-center border border-slate-600 bg-slate-800/70 px-4 text-[10px] font-medium text-slate-100 hover:bg-slate-800 md:w-auto mb-3"
+        onClick={() => {
+          setSelectedCategory('all')
+          setSelectedRange('All')
+          applyLocalFilters('all', 'All')
+        }}
+        className="h-8 w-full justify-center border border-slate-600 bg-slate-800/70 px-4 text-[10px] font-medium text-slate-100 hover:bg-slate-800 md:w-auto mb-[2px]"
       >
         All events
       </Button>
 
       <div className="w-full md:hidden">
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+        <Select
+          value={selectedCategory}
+          onValueChange={(val) => {
+            setSelectedCategory(val)
+            applyLocalFilters(val, selectedRange)
+          }}
+        >
           <SelectTrigger className="h-9 w-full border-slate-700 bg-slate-900/70 text-slate-100">
             <SelectValue placeholder="Event category" />
           </SelectTrigger>
@@ -107,7 +114,16 @@ export default function Filters() {
             <button
               key={event.label}
               type="button"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-slate-800/70 bg-slate-900/60 hover:bg-slate-800/80 transition-colors group"
+              onClick={() => {
+                setSelectedCategory(event.label)
+                applyLocalFilters(event.label, selectedRange)
+              }}
+              className={cn(
+                'flex items-center gap-2 px-3 py-1.5 rounded-md border transition-colors group',
+                event.label === selectedCategory
+                  ? 'border-slate-600 bg-slate-800 text-slate-100'
+                  : 'border-slate-800/70 bg-slate-900/60 hover:bg-slate-800/80 text-slate-200',
+              )}
             >
               <span
                 className={cn(
@@ -115,7 +131,7 @@ export default function Filters() {
                 )}
                 style={{ backgroundColor: event.color }}
               />
-              <span className="text-[11px] text-slate-200 font-medium whitespace-nowrap">
+              <span className="text-[11px] font-medium whitespace-nowrap">
                 {event.label} <span className="text-slate-300 ml-0.5">({event.count})</span>
               </span>
             </button>
@@ -126,7 +142,13 @@ export default function Filters() {
       <Separator orientation="vertical" className="mx-2 hidden h-6 bg-slate-700 md:block" />
 
       <div className="w-full md:hidden">
-        <Select value={selectedRange} onValueChange={setSelectedRange}>
+        <Select
+          value={selectedRange}
+          onValueChange={(val) => {
+            setSelectedRange(val as RangeOption)
+            applyLocalFilters(selectedCategory, val as RangeOption)
+          }}
+        >
           <SelectTrigger className="h-9 w-full border-slate-700 bg-slate-900/70 text-slate-100">
             <SelectValue placeholder="Time range" />
           </SelectTrigger>
@@ -146,9 +168,13 @@ export default function Filters() {
             <Button
               key={range}
               variant="ghost"
+              onClick={() => {
+                setSelectedRange(range)
+                applyLocalFilters(selectedCategory, range as RangeOption)
+              }}
               className={cn(
                 'h-7 px-3 text-[11px] font-mono border transition-all',
-                range === '24h'
+                range === selectedRange
                   ? 'bg-slate-800 text-slate-100 border-slate-600'
                   : 'text-slate-300 border-transparent hover:border-slate-700 hover:slate-950/80',
               )}
