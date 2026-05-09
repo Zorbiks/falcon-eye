@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { DayPicker, DateRange } from '@daypicker/react'
-import { isSameYear, format, addDays } from 'date-fns'
+import { isSameYear, format } from 'date-fns'
 import { Filter, ListFilter, Calendar as CalendarIcon } from 'lucide-react'
 import { cn } from 'src/lib/utils'
 import { Button } from 'src/components/ui/button'
@@ -18,62 +18,21 @@ import {
 } from 'src/components/ui/drawer'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'src/components/ui/select'
 import { Label } from 'src/components/ui/label'
-
-const NORTH_AFRICA_COUNTRIES = ['Algeria', 'Egypt', 'Libya', 'Morocco', 'Tunisia']
-
-const MIDDLE_EAST_COUNTRIES = [
-  'Bahrain',
-  'Iran',
-  'Iraq',
-  'Israel',
-  'Jordan',
-  'Kuwait',
-  'Lebanon',
-  'Oman',
-  'Qatar',
-  'Saudi Arabia',
-  'Syria',
-  'United Arab Emirates',
-  'Yemen',
-]
-
-const MENA_COUNTRIES = [
-  'Algeria',
-  'Bahrain',
-  'Egypt',
-  'Iran',
-  'Iraq',
-  'Israel',
-  'Jordan',
-  'Kuwait',
-  'Lebanon',
-  'Libya',
-  'Morocco',
-  'Oman',
-  'Qatar',
-  'Saudi Arabia',
-  'Syria',
-  'Tunisia',
-  'United Arab Emirates',
-  'Yemen',
-]
-
-const EVENT_TYPES = [
-  'Battles',
-  'Explosions/Remote violence',
-  'Protests',
-  'Riots',
-  'Strategic developments',
-  'Violence against civilians',
-]
-
-const slugifyCountry = (countryName: string) =>
-  countryName
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z-]/g, '')
+import { useGlobalData } from 'src/context'
+import {
+  EVENT_TYPES,
+  MENA_COUNTRIES,
+  MIDDLE_EAST_COUNTRIES,
+  NORTH_AFRICA_COUNTRIES,
+  filterRegionToUiMap,
+  getDefaultAdvancedFilterRange,
+  regionUiToFilterMap,
+} from '../canstants/filterDrawer'
+import { slugifyCountry } from '../utils/filterDrawer'
 
 export default function FilterDrawer() {
+  const { eventFilters, applyServerFilters, resetEventFilters } = useGlobalData()
+  const defaultRange = React.useMemo(() => getDefaultAdvancedFilterRange(), [])
   const [region, setRegion] = React.useState<string>('all')
   const [country, setCountry] = React.useState<string>('all')
   const [selectedEvents, setSelectedEvents] = React.useState<string[]>([])
@@ -122,9 +81,28 @@ export default function FilterDrawer() {
 
   // Defaulting to 2026 for your Falcon Eye project context
   const [range, setRange] = React.useState<DateRange | undefined>({
-    from: new Date(2026, 3, 1),
-    to: addDays(new Date(2026, 3, 1), 14),
+    from: defaultRange.from,
+    to: defaultRange.to,
   })
+
+  React.useEffect(() => {
+    setRegion(filterRegionToUiMap[eventFilters.region])
+    setCountry(eventFilters.country === 'All' ? 'all' : slugifyCountry(eventFilters.country))
+    setSelectedEvents(eventFilters.eventTypes)
+
+    if (eventFilters.startDate && eventFilters.endDate) {
+      setRange({
+        from: eventFilters.startDate,
+        to: eventFilters.endDate,
+      })
+      return
+    }
+
+    setRange({
+      from: defaultRange.from,
+      to: defaultRange.to,
+    })
+  }, [eventFilters, defaultRange])
 
   const toggleEvent = (event: string) => {
     setSelectedEvents((prev) => (prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]))
@@ -171,7 +149,7 @@ export default function FilterDrawer() {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-slate-800 text-slate-100">
                       <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="na">North Africa</SelectItem>
+                      <SelectItem value="na">Northern Africa</SelectItem>
                       <SelectItem value="me">Middle East</SelectItem>
                     </SelectContent>
                   </Select>
@@ -246,19 +224,37 @@ export default function FilterDrawer() {
           </div>
 
           <DrawerFooter className="sticky bottom-0 z-[2002] mt-0 flex-col sm:flex-row gap-3 border-t border-slate-800/50 bg-[#020617]/95 px-4 sm:px-6 pt-4 sm:pt-6 pb-4 backdrop-blur-sm">
-            <Button className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-500 font-bold tracking-wide">Apply</Button>
+            <DrawerClose asChild>
+              <Button
+                className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-500 font-bold tracking-wide"
+                onClick={async () => {
+                  const selectedCountryName = country === 'all' ? 'All' : countryBySlug.get(country) ?? 'All'
+
+                  await applyServerFilters({
+                    region: regionUiToFilterMap[region] ?? 'All',
+                    country: selectedCountryName,
+                    eventTypes: selectedEvents,
+                    startDate: range?.from ?? null,
+                    endDate: range?.to ?? null,
+                  })
+                }}
+              >
+                Apply
+              </Button>
+            </DrawerClose>
             <DrawerClose asChild>
               <Button
                 variant="ghost"
                 className="w-full sm:w-auto"
-                onClick={() => {
+                onClick={async () => {
                   setRegion('all')
                   setCountry('all')
                   setSelectedEvents([])
                   setRange({
-                    from: new Date(2026, 3, 1),
-                    to: addDays(new Date(2026, 3, 1), 14),
+                    from: defaultRange.from,
+                    to: defaultRange.to,
                   })
+                  await resetEventFilters()
                 }}
               >
                 RESET

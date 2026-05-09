@@ -60,8 +60,6 @@ export default function Filters() {
       color: categoryColorMap[label] ?? DEFAULT_CATEGORY_COLOR,
     }))
 
-    console.log(countsByCategory)
-
     return {
       filterCategories: categories,
     }
