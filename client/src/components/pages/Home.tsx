@@ -1,5 +1,5 @@
 import MainMap from '../map'
-import TimelineFeed from '../timeLine'
+import TimelineFeed from '../news'
 import CategoriesStatsCard from '../CategoriesStatsCard'
 import Sources from '../sources'
 import Filters from 'src/components/filters'

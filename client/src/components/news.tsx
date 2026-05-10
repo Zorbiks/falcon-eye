@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useGlobalData } from '../context'
+import { useAuth } from 'src/context'
 import type { FeedCard } from '../types/feed'
 import { getRelativeTime } from '../utils/timelineFeed'
-import TimelineDrawer from './timelineDrawer'
+import TimelineDrawer from './newsDrawer'
 import { TimelineSkeleton } from './loaders'
 
 export default function TimelineFeed() {
   const { feedData, isFeedLoading, hasFeedLoaded, toggleBookmark, isBookmarked } = useGlobalData()
+  const { token } = useAuth()
   const [selectedEvent, setSelectedEvent] = useState<FeedCard | null>(null)
   const [visibleCount, setVisibleCount] = useState(8)
   const loadStep = 6
@@ -53,6 +55,7 @@ export default function TimelineFeed() {
       <TimelineDrawer
         event={selectedEvent}
         bookmarkId={selectedBookmarkId}
+        token={token}
         isBookmarked={isBookmarked}
         onToggleBookmark={(event: FeedCard) =>
           toggleBookmark({

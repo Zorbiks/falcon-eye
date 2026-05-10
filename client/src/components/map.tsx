@@ -6,6 +6,7 @@ import { useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import { Button } from './ui/button'
 import { useGlobalData } from 'src/context'
+import { useAuth } from 'src/context'
 import { getEventStyle } from 'src/utils/getEventStyle'
 import { createCustomIcon } from 'src/utils/createCustomIcon'
 import type { AcledEvent } from 'src/types/events'
@@ -50,6 +51,7 @@ const MapCenter = ({ mapRef }: { mapRef: React.MutableRefObject<any> }) => {
 // Map
 export default function MainMap() {
   const { events, isLoading, toggleBookmark, isBookmarked } = useGlobalData()
+  const { token } = useAuth()
 
   const memoEvents = useMemo(() => events, [events])
 
@@ -118,6 +120,7 @@ export default function MainMap() {
         isFullscreen={isFullscreen}
         selectedEvent={selectedEvent}
         selectedEventBookmarkId={selectedEventBookmarkId}
+        token={token}
         isBookmarked={isBookmarked}
         onOpenChange={(open: boolean) => !open && setSelectedEvent(null)}
         onToggleBookmark={(event: AcledEvent) =>

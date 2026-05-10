@@ -1,8 +1,9 @@
 import { Bookmark, BookMarked, ExternalLink } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import type { FeedCard } from '../types/feed'
 import { formatPublishedDate } from '../utils/timelineFeed'
+import { addBookmark, removeBookmark } from 'src/services/bookmarkService'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from './ui/drawer'
@@ -10,6 +11,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
 type TimelineDrawerProps = {
   event: FeedCard | null
   bookmarkId: string
+  token: string | null
   isBookmarked: (id: string) => boolean
   onToggleBookmark: (event: FeedCard) => void
   onClose: () => void
@@ -18,11 +20,29 @@ type TimelineDrawerProps = {
 export default function TimelineDrawer({
   event,
   bookmarkId,
+  token,
   isBookmarked,
   onToggleBookmark,
   onClose,
 }: TimelineDrawerProps) {
+  const [isUpdating, setIsUpdating] = useState(false)
   const publishedDate = event ? formatPublishedDate(event.publishedAt) : ''
+
+  const handleToggleBookmark = async (feedCard: FeedCard) => {
+    if (!token) return
+
+    setIsUpdating(true)
+    try {
+      if (isBookmarked(bookmarkId)) {
+        await removeBookmark(bookmarkId)
+      } else {
+        await addBookmark(bookmarkId)
+      }
+      onToggleBookmark(feedCard)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   // create a safe, truncated description for the drawer
   const maxDescriptionLength = 400
@@ -90,7 +110,8 @@ export default function TimelineDrawer({
                 <Button
                   variant="outline"
                   className="w-full border-slate-700 bg-transparent hover:bg-slate-900 text-slate-200 hover:text-slate-200"
-                  onClick={() => onToggleBookmark(event)}
+                  disabled={isUpdating || !token}
+                  onClick={() => handleToggleBookmark(event)}
                 >
                   {isBookmarked(bookmarkId) ? (
                     <BookMarked className="mr-2 h-4 w-4 text-emerald-400" />

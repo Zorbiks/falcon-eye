@@ -21,7 +21,7 @@ export const UserBookmarksDrawer = ({ open, onOpenChange, token }: UserBookmarks
       setIsLoading(true)
       setIsError(false)
       try {
-        const bookmarks = await fetchMyBookmarks(token)
+        const bookmarks = await fetchMyBookmarks()
         setData(bookmarks)
       } catch (error) {
         setIsError(true)

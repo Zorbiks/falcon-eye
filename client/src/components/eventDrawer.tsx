@@ -1,9 +1,11 @@
 import { Bookmark, BookMarked, Info } from 'lucide-react'
+import { useState } from 'react'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from './ui/drawer'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { getEventDescription, getEventStyle } from 'src/utils/getEventStyle'
+import { addBookmark, removeBookmark } from 'src/services/bookmarkService'
 import type { AcledEvent } from 'src/types/events'
 
 type EventDrawerProps = {
@@ -11,6 +13,7 @@ type EventDrawerProps = {
   isFullscreen: boolean
   selectedEvent: AcledEvent | null
   selectedEventBookmarkId: string
+  token: string | null
   isBookmarked: (id: string) => boolean
   onOpenChange: (open: boolean) => void
   onToggleBookmark: (event: AcledEvent) => void
@@ -21,13 +24,31 @@ export default function EventDrawer({
   isFullscreen,
   selectedEvent,
   selectedEventBookmarkId,
+  token,
   isBookmarked,
   onOpenChange,
   onToggleBookmark,
 }: EventDrawerProps) {
+  const [isUpdating, setIsUpdating] = useState(false)
   const selectedEventDescription = selectedEvent
     ? getEventDescription(selectedEvent.eventType, selectedEvent.subEventType)
     : ''
+
+  const handleToggleBookmark = async (event: AcledEvent) => {
+    if (!token) return
+
+    setIsUpdating(true)
+    try {
+      if (isBookmarked(selectedEventBookmarkId)) {
+        await removeBookmark(selectedEventBookmarkId)
+      } else {
+        await addBookmark(selectedEventBookmarkId)
+      }
+      onToggleBookmark(event)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
@@ -126,7 +147,8 @@ export default function EventDrawer({
                 <Button
                   variant="outline"
                   className="w-full border-slate-700 bg-transparent hover:bg-slate-900 text-slate-200 hover:text-slate-200"
-                  onClick={() => onToggleBookmark(selectedEvent)}
+                  disabled={isUpdating || !token}
+                  onClick={() => handleToggleBookmark(selectedEvent)}
                 >
                   {isBookmarked(selectedEventBookmarkId) ? (
                     <BookMarked className="mr-2 h-4 w-4 text-emerald-400" />
