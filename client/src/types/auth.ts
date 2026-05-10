@@ -13,10 +13,18 @@ export type AuthRequestBody = {
   password: string
 }
 
+export interface UserProfile {
+  displayName: string
+  email: string
+  createdAt: string
+}
+
+export interface AuthUser extends UserProfile {
+  id: string
+  username: string
+}
+
 export interface AuthSession {
   token: string
-  user: {
-    id: string
-    username: string
-  }
+  user: AuthUser
 }

@@ -1,9 +1,12 @@
+import { useAuth } from 'src/context'
 import { Link } from 'react-router-dom'
 import { Button } from 'src/components/ui/button'
 import { useLocation } from 'react-router-dom'
+import { UserAccountMenu } from './user-account-menu'
 
 export const Header = () => {
   const { pathname } = useLocation()
+  const { user, token, isAuthenticated, signOut } = useAuth()
 
   return (
     <header className=" w-full border-b border-slate-800 bg-slate-900/90 backdrop-blur-md flex items-center justify-between px-6 py-3 z-[1001]">
@@ -20,19 +23,23 @@ export const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-2">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="border-slate-700 bg-slate-950/70 text-slate-100 hover:bg-slate-900 hover:text-white"
-          >
-            <Link to="/login">Log in</Link>
-          </Button>
-          <Button asChild size="sm" className="bg-emerald-600 text-white hover:bg-emerald-500">
-            <Link to="/signup">Sign up</Link>
-          </Button>
-        </div>
+        {!isAuthenticated ? (
+          <div className="hidden sm:flex items-center gap-2">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="border-slate-700 bg-slate-950/70 text-slate-100 hover:bg-slate-900 hover:text-white"
+            >
+              <Link to="/login">Log in</Link>
+            </Button>
+            <Button asChild size="sm" className="bg-emerald-600 text-white hover:bg-emerald-500">
+              <Link to="/signup">Sign up</Link>
+            </Button>
+          </div>
+        ) : user ? (
+          <UserAccountMenu user={user} token={token} onLogout={signOut} />
+        ) : null}
         <Button
           asChild
           variant="outline"

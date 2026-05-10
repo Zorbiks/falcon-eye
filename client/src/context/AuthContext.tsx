@@ -9,11 +9,7 @@ import {
   buildSession,
   type AuthSession,
 } from 'src/lib/authUtils'
-
-export interface AuthUser {
-  id: string
-  username: string
-}
+import type { AuthUser } from 'src/types/auth'
 
 export interface SignInCredentials {
   username: string

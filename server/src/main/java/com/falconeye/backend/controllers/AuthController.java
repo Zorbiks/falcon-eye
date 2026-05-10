@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -48,7 +49,7 @@ public class AuthController {
         user.setRole(Role.USER);
 
         userRepository.save(user);
-        
+
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 

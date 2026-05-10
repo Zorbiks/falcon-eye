@@ -15,6 +15,7 @@ export default function LoginPage() {
     const username = String(formData.get('username') ?? '')
     const password = String(formData.get('password') ?? '')
 
+    console.log({ username, password })
     const succeeded = await signIn({ username, password })
 
     if (succeeded) {

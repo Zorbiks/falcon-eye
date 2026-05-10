@@ -1,5 +1,6 @@
 import api from 'src/lib/authAPI'
 import { type JwtPayload, type AuthResponse, type AuthRequestBody, type AuthSession } from 'src/types/auth'
+import { resolveUserProfile } from 'src/lib/authProfile'
 
 export type { JwtPayload, AuthResponse, AuthRequestBody, AuthSession }
 
@@ -53,11 +54,16 @@ export function readStoredSession(): AuthSession | null {
       return null
     }
 
+    const profile = resolveUserProfile(username)
+
     return {
       token: parsedSession.token,
       user: {
         id: parsedSession.user.id || username,
         username,
+        displayName: parsedSession.user.displayName || profile.displayName,
+        email: parsedSession.user.email || profile.email,
+        createdAt: parsedSession.user.createdAt || profile.createdAt,
       },
     }
   } catch (error) {
@@ -108,11 +114,16 @@ export async function signUpRequest(credentials: AuthRequestBody) {
 }
 
 export function buildSession(token: string, username: string): AuthSession {
+  const profile = resolveUserProfile(username)
+
   return {
     token,
     user: {
       id: username,
       username,
+      displayName: profile.displayName,
+      email: profile.email,
+      createdAt: profile.createdAt,
     },
   }
 }
