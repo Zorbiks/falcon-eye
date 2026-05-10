@@ -26,7 +26,6 @@ FEEDS = [
     {"url": "https://www.jpost.com/rss/rssfeedsmiddleeastnews.aspx",     "source": "The Jerusalem Post"},
     {"url": "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",  "source": "BBC News"},
     {"url": "https://www.middleeasteye.net/rss",                         "source": "Middle East Eye"},
-    {"url": "https://www.presstv.ir/rss/rss-102.xml",                   "source": "Press TV"},
     {"url": "https://www.middleeastmonitor.com/feed/",                   "source": "Middle East Monitor"},
     {"url": "https://www.france24.com/en/middle-east/rss",              "source": "France 24"},
     {"url": "https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml", "source": "The New York Times"},
