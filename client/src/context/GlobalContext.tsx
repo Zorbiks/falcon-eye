@@ -6,7 +6,7 @@ import { fetchNewsFeed } from '../services/feedService'
 import type { AcledEvent, EventFilters, EventRegionFilter } from '../types/events'
 import type { FeedItem } from '../types/feed'
 import useLocalStorageState from 'src/hooks/use-localstorage-state'
-import { filterEventsClientSide, RangeOption } from '../lib/eventFilter'
+import { filterEventsClientSide, RangeOption } from '../utils/eventFilter'
 
 export type BookmarkItem = {
   id: string

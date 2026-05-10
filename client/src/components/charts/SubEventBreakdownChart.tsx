@@ -13,6 +13,12 @@ type SubEventItem = {
   value: number
 }
 
+const getChartHeight = (itemCount: number): number => {
+  const MIN_HEIGHT = 320
+  const HEIGHT_PER_ITEM = 35
+  return Math.max(MIN_HEIGHT, itemCount * HEIGHT_PER_ITEM + 60)
+}
+
 export default function SubEventBreakdownChart({ country, start, end }: Props) {
   const [data, setData] = React.useState<SubEventItem[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
@@ -51,19 +57,21 @@ export default function SubEventBreakdownChart({ country, start, end }: Props) {
     }
   }, [country, start, end])
 
+  const chartHeight = getChartHeight(data.length)
+
   return (
     <ChartCard title="Sub-event breakdown" description="Top sub-event categories aggregated from event types.">
-      {isLoading ? <Placeholder /> : <SubEventChart data={data} />}
+      {isLoading ? <Placeholder /> : <SubEventChart data={data} height={chartHeight} />}
     </ChartCard>
   )
 }
 
-const SubEventChart = ({ data }: { data: SubEventItem[] }) => (
-  <ResponsiveContainer width="100%" height={320}>
+const SubEventChart = ({ data, height }: { data: SubEventItem[]; height: number }) => (
+  <ResponsiveContainer width="100%" height={height}>
     <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>
       <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
       <XAxis type="number" stroke="#94a3b8" />
-      <YAxis type="category" dataKey="name" stroke="#94a3b8" width={150} />
+      <YAxis type="category" dataKey="name" stroke="#94a3b8" width={150} interval={0} />
       <Tooltip
         contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
         labelStyle={{ color: '#e2e8f0' }}

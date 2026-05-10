@@ -11,6 +11,12 @@ type Props = {
 
 const palette = ['#8b5cf6', '#06b6d4', '#f97316', '#22c55e', '#eab308', '#ef4444']
 
+const getChartHeight = (itemCount: number): number => {
+  const MIN_HEIGHT = 320
+  const HEIGHT_PER_ITEM = 35
+  return Math.max(MIN_HEIGHT, itemCount * HEIGHT_PER_ITEM + 60)
+}
+
 export default function EventTypeChart({ country, start, end }: Props) {
   const [data, setData] = React.useState<EventTypeStats[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
@@ -44,20 +50,21 @@ export default function EventTypeChart({ country, start, end }: Props) {
       ...entry,
       fill: palette[index % palette.length],
     }))
+  const chartHeight = getChartHeight(chartData.length)
 
   return (
     <ChartCard title="Events by type" description="Event and fatality totals grouped by event type.">
-      {isLoading ? <Placeholder /> : <EventTypeBarChart data={chartData} />}
+      {isLoading ? <Placeholder /> : <EventTypeBarChart data={chartData} height={chartHeight} />}
     </ChartCard>
   )
 }
 
-const EventTypeBarChart = ({ data }: { data: Array<EventTypeStats & { fill: string }> }) => (
-  <ResponsiveContainer width="100%" height={320}>
+const EventTypeBarChart = ({ data, height }: { data: Array<EventTypeStats & { fill: string }>; height: number }) => (
+  <ResponsiveContainer width="100%" height={height}>
     <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>
       <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
       <XAxis type="number" stroke="#94a3b8" />
-      <YAxis type="category" dataKey="eventType" stroke="#94a3b8" width={140} />
+      <YAxis type="category" dataKey="eventType" stroke="#94a3b8" width={140} interval={0} />
       <Tooltip
         contentStyle={{ backgroundColor: '#00487C', border: '1px solid #334155' }}
         labelStyle={{ color: '#e2e8f0' }}

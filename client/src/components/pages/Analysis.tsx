@@ -66,12 +66,12 @@ export default function Analysis() {
         <StatsSummary country={selectedCountry} />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <EventsByYearChart country={analysisCountry} start={start} end={end} />
-          <EventTypeChart country={analysisCountry} start={start} end={end} />
-          <RegionCountryChart region={analysisRegion} />
           <div className="lg:col-span-2">
             <SubEventBreakdownChart country={analysisCountry} start={start} end={end} />
           </div>
+          <EventsByYearChart country={analysisCountry} start={start} end={end} />
+          <EventTypeChart country={analysisCountry} start={start} end={end} />
+          <RegionCountryChart region={analysisRegion} />
         </div>
       </div>
     </div>

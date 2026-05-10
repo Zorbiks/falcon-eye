@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Button } from 'src/components/ui/button'
-import { Shield, Activity, Wifi } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
 
 export const Header = () => {
+  const { pathname } = useLocation()
+
   return (
     <header className=" w-full border-b border-slate-800 bg-slate-900/90 backdrop-blur-md flex items-center justify-between px-6 py-3 z-[1001]">
       <div className="flex items-center gap-2">
@@ -36,12 +38,14 @@ export const Header = () => {
           variant="outline"
           className="border-slate-700 bg-slate-950/70 text-slate-100 hover:bg-slate-900 hover:text-white gap-2"
         >
-          <Link to="/analysis" className="flex items-center gap-2 px-3 py-1.5">
+          <Link to={pathname === '/analysis' ? '/home' : '/analysis'} className="flex items-center gap-2 px-3 py-1.5">
             <div className="relative h-2 w-2">
               <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
               <div className="relative h-2 w-2 bg-emerald-500 rounded-full"></div>
             </div>
-            <span className="text-[10px] font-bold text-slate-100 tracking-widest uppercase">Analysis</span>
+            <span className="text-[10px] font-bold text-slate-100 tracking-widest uppercase">
+              {pathname === '/analysis' ? 'Home' : 'Analysis'}
+            </span>
           </Link>
         </Button>
       </div>

@@ -7,6 +7,12 @@ type Props = {
   region: string
 }
 
+const getChartHeight = (itemCount: number): number => {
+  const MIN_HEIGHT = 320
+  const HEIGHT_PER_ITEM = 35
+  return Math.max(MIN_HEIGHT, itemCount * HEIGHT_PER_ITEM + 60)
+}
+
 export default function RegionCountryChart({ region }: Props) {
   const [data, setData] = React.useState<RegionCountryStats[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
@@ -34,20 +40,21 @@ export default function RegionCountryChart({ region }: Props) {
   }, [region])
 
   const chartData = data.slice().sort((left, right) => right.totalEvents - left.totalEvents)
+  const chartHeight = getChartHeight(chartData.length)
 
   return (
     <ChartCard title="Regional country breakdown" description="Total events by country inside the selected region.">
-      {isLoading ? <Placeholder /> : <RegionChart data={chartData} />}
+      {isLoading ? <Placeholder /> : <RegionChart data={chartData} height={chartHeight} />}
     </ChartCard>
   )
 }
 
-const RegionChart = ({ data }: { data: RegionCountryStats[] }) => (
-  <ResponsiveContainer width="100%" height={320}>
+const RegionChart = ({ data, height }: { data: RegionCountryStats[]; height: number }) => (
+  <ResponsiveContainer width="100%" height={height}>
     <ComposedChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>
       <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
       <XAxis type="number" stroke="#94a3b8" />
-      <YAxis type="category" dataKey="country" stroke="#94a3b8" width={140} />
+      <YAxis type="category" dataKey="country" stroke="#94a3b8" width={140} interval={0} />
       <Tooltip
         contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
         labelStyle={{ color: '#e2e8f0' }}
