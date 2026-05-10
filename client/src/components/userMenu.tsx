@@ -5,7 +5,7 @@ import { UserProfileDialog } from './userDialog'
 import { UserBookmarksDrawer } from './bookmarksDrawer'
 import { UserAccountMenuProps } from 'src/types/bookmarks'
 
-export const UserAccountMenu = ({ user, token, onLogout }: UserAccountMenuProps) => {
+export const UserAccountMenu = ({ user, onLogout }: UserAccountMenuProps) => {
   const [profileOpen, setProfileOpen] = useState(false)
   const [bookmarksOpen, setBookmarksOpen] = useState(false)
 
@@ -31,7 +31,7 @@ export const UserAccountMenu = ({ user, token, onLogout }: UserAccountMenuProps)
         onOpenBookmarks={() => setBookmarksOpen(true)}
       />
 
-      <UserBookmarksDrawer open={bookmarksOpen} onOpenChange={setBookmarksOpen} token={token} />
+      <UserBookmarksDrawer open={bookmarksOpen} onOpenChange={setBookmarksOpen} />
     </>
   )
 }

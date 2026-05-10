@@ -1,19 +1,32 @@
 import { useEffect, useState } from 'react'
-import { Bookmark, CalendarClock, MapPin, Tag, X } from 'lucide-react'
+import { Bookmark, CalendarClock, MapPin, Tag, Trash2, X } from 'lucide-react'
 import { Button } from 'src/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from 'src/components/ui/drawer'
 import { Separator } from 'src/components/ui/separator'
-import { fetchMyBookmarks } from 'src/services/bookmarkService'
+import { fetchMyBookmarks, removeBookmark } from 'src/services/bookmarkService'
 import { formatDate } from 'src/utils/dateFormatter'
 import type { BookmarkResponse, UserBookmarksDrawerProps } from 'src/types/bookmarks'
 
-export const UserBookmarksDrawer = ({ open, onOpenChange, token }: UserBookmarksDrawerProps) => {
+export const UserBookmarksDrawer = ({ open, onOpenChange }: UserBookmarksDrawerProps) => {
   const [data, setData] = useState<BookmarkResponse[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+
+  const handleDeleteBookmark = async (bookmarkId: number, rowKey: string) => {
+    setDeletingId(bookmarkId)
+    try {
+      const success = await removeBookmark(rowKey)
+      if (success) {
+        setData((prev) => prev.filter((b) => b.id !== bookmarkId))
+      }
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   useEffect(() => {
-    if (!open || !token) {
+    if (!open) {
       return
     }
 
@@ -22,6 +35,7 @@ export const UserBookmarksDrawer = ({ open, onOpenChange, token }: UserBookmarks
       setIsError(false)
       try {
         const bookmarks = await fetchMyBookmarks()
+        console.log(bookmarks)
         setData(bookmarks)
       } catch (error) {
         setIsError(true)
@@ -31,7 +45,7 @@ export const UserBookmarksDrawer = ({ open, onOpenChange, token }: UserBookmarks
     }
 
     loadBookmarks()
-  }, [open, token])
+  }, [open])
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -44,20 +58,14 @@ export const UserBookmarksDrawer = ({ open, onOpenChange, token }: UserBookmarks
         </DrawerHeader>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
-          {!token && (
-            <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-slate-300">
-              You need to be signed in to view your bookmarks.
-            </div>
-          )}
-
-          {isLoading && token && (
+          {isLoading && (
             <div className="space-y-3">
               <div className="h-24 rounded-xl border border-slate-800 bg-slate-900/60 animate-pulse" />
               <div className="h-24 rounded-xl border border-slate-800 bg-slate-900/60 animate-pulse" />
             </div>
           )}
 
-          {isError && token && (
+          {isError && (
             <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
               We could not load your bookmarks right now.
             </div>
@@ -82,8 +90,19 @@ export const UserBookmarksDrawer = ({ open, onOpenChange, token }: UserBookmarks
                       <p className="text-sm font-semibold text-slate-100">{bookmark.event?.country ?? 'Saved item'}</p>
                       <p className="mt-1 text-xs text-slate-400 break-all">{bookmark.rowKey}</p>
                     </div>
-                    <div className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
-                      Saved
+                    <div className="flex items-center gap-2">
+                      <div className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                        Saved
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-auto p-1 text-slate-400 hover:text-rose-400 hover:bg-rose-400/10"
+                        disabled={deletingId === bookmark.id}
+                        onClick={() => handleDeleteBookmark(bookmark.id, bookmark.rowKey)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
 

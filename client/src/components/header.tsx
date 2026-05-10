@@ -38,7 +38,7 @@ export const Header = () => {
             </Button>
           </div>
         ) : user ? (
-          <UserAccountMenu user={user} token={token} onLogout={signOut} />
+          <UserAccountMenu user={user} onLogout={signOut} />
         ) : null}
         <Button
           asChild

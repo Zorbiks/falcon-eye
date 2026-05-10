@@ -34,11 +34,9 @@ export type UserProfileDialogProps = {
 export type UserBookmarksDrawerProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  token: string | null
 }
 
 export type UserAccountMenuProps = {
   user: AuthUser
-  token: string | null
   onLogout: () => void
 }
