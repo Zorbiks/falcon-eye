@@ -1,3 +1,5 @@
+import { AuthUser } from './auth'
+
 export interface BookmarkEvent {
   rowKey: string
   week: string
@@ -19,4 +21,24 @@ export interface BookmarkResponse {
   rowKey: string
   createdAt: string
   event?: BookmarkEvent | null
+}
+
+export type UserProfileDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  user: AuthUser
+  onLogout: () => void
+  onOpenBookmarks: () => void
+}
+
+export type UserBookmarksDrawerProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  token: string | null
+}
+
+export type UserAccountMenuProps = {
+  user: AuthUser
+  token: string | null
+  onLogout: () => void
 }

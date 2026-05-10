@@ -3,21 +3,8 @@ import { CalendarDays, LogOut, Mail, UserCircle2 } from 'lucide-react'
 import { Button } from 'src/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from 'src/components/ui/dialog'
 import { Separator } from 'src/components/ui/separator'
-import type { AuthUser } from 'src/types/auth'
-
-type UserProfileDialogProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  user: AuthUser
-  onLogout: () => void
-  onOpenBookmarks: () => void
-}
-
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
+import { formatDate } from 'src/utils/dateFormatter'
+import { UserProfileDialogProps } from 'src/types/bookmarks'
 
 export const UserProfileDialog = ({ open, onOpenChange, user, onLogout, onOpenBookmarks }: UserProfileDialogProps) => {
   const [isClosing, setIsClosing] = useState(false)

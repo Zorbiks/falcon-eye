@@ -1,15 +1,9 @@
 import { useState } from 'react'
 import { ChevronDown, UserCircle2 } from 'lucide-react'
 import { Button } from 'src/components/ui/button'
-import type { AuthUser } from 'src/types/auth'
 import { UserProfileDialog } from './userDialog'
 import { UserBookmarksDrawer } from './bookmarksDrawer'
-
-type UserAccountMenuProps = {
-  user: AuthUser
-  token: string | null
-  onLogout: () => void
-}
+import { UserAccountMenuProps } from 'src/types/bookmarks'
 
 export const UserAccountMenu = ({ user, token, onLogout }: UserAccountMenuProps) => {
   const [profileOpen, setProfileOpen] = useState(false)

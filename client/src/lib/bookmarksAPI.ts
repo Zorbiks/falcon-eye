@@ -7,12 +7,13 @@ const api = axios.create({
   baseURL: `${API_BASE_URL}/api/bookmarks`,
 })
 
-export async function fetchMyBookmarks(token: string) {
+export async function fetchMyBookmarks(token: string): Promise<BookmarkResponse[]> {
   const response = await api.get<BookmarkResponse[]>('', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   })
-
   return response.data
 }
+
+export default api
