@@ -12,11 +12,15 @@ export default function TimelineFeed() {
   const loadStep = 6
 
   const feedEvents = useMemo<FeedCard[] | []>(() => {
-    return feedData.map((item) => ({
-      ...item,
-      sourceLabel: item.source,
-      publishedLabel: getRelativeTime(item.publishedAt),
-    }))
+    return feedData
+      .filter((item) => item.source != 'Press TV')
+      .map((item) => {
+        return {
+          ...item,
+          sourceLabel: item.source,
+          publishedLabel: getRelativeTime(item.publishedAt),
+        }
+      })
   }, [feedData])
 
   useEffect(() => {
