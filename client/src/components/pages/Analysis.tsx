@@ -2,7 +2,7 @@ import * as React from 'react'
 import { format } from 'date-fns'
 import { useGlobalData } from 'src/context'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'src/components/ui/select'
-import { MENA_COUNTRIES, MIDDLE_EAST_COUNTRIES, NORTH_AFRICA_COUNTRIES } from '../../canstants/filterDrawer'
+import { MENA_COUNTRIES, MIDDLE_EAST_COUNTRIES, NORTH_AFRICA_COUNTRIES } from '../../constants/filterDrawer'
 import { EventsByYearChart, EventTypeChart, RegionCountryChart, StatsSummary, SubEventBreakdownChart } from '../charts'
 
 const regionByCountry = (country: string) => {

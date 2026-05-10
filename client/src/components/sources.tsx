@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import sourcesData from '../data/sources.json'
-import { SOURCE_GROUP_LABELS, SOURCE_GROUP_ORDER } from 'src/canstants/stats'
+import { SOURCE_GROUP_LABELS, SOURCE_GROUP_ORDER } from 'src/constants/stats'
 import { SourcesSkeleton } from './loaders'
 import { useGlobalData } from 'src/context'
 

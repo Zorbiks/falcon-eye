@@ -27,7 +27,7 @@ import {
   filterRegionToUiMap,
   getDefaultAdvancedFilterRange,
   regionUiToFilterMap,
-} from '../canstants/filterDrawer'
+} from '../constants/filterDrawer'
 import { slugifyCountry } from '../utils/filterDrawer'
 
 export default function FilterDrawer() {

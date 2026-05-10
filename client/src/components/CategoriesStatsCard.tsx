@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useGlobalData } from '../context'
-import { categoryColorMap, DEFAULT_CATEGORY_COLOR, rawThemes, registryCategories } from '../canstants/stats'
+import { categoryColorMap, DEFAULT_CATEGORY_COLOR, rawThemes, registryCategories } from '../constants/stats'
 import { CategoriesStatsCardSkeleton } from './loaders'
 
 export default function CategoriesStatsCard() {
