@@ -36,7 +36,7 @@ export default function StatsSummary({ country }: Props) {
 
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <StatCard label="Country" value={isLoading ? 'Loading...' : country} />
+      <StatCard label="Country" value={country} />
       <StatCard label="Total events" value={isLoading ? 'Loading...' : formatNumber(stats?.totalEvents ?? 0)} />
       <StatCard label="Total fatalities" value={isLoading ? 'Loading...' : formatNumber(stats?.totalFatalities ?? 0)} />
     </section>

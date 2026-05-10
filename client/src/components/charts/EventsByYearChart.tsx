@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { getCountryStatsByYear } from 'src/services/statsService'
 import type { YearStats } from 'src/types/stats'
@@ -10,29 +10,18 @@ type Props = {
 }
 
 export default function EventsByYearChart({ country, start, end }: Props) {
-  const [data, setData] = React.useState<YearStats[]>([])
-  const [isLoading, setIsLoading] = React.useState(true)
+  const [data, setData] = useState<YearStats[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  React.useEffect(() => {
-    let active = true
-
+  useEffect(() => {
     const loadData = async () => {
       setIsLoading(true)
       const response = await getCountryStatsByYear(country, start, end)
-
-      if (!active) {
-        return
-      }
-
       setData(response)
       setIsLoading(false)
     }
 
     loadData()
-
-    return () => {
-      active = false
-    }
   }, [country, start, end])
 
   return (
@@ -75,4 +64,4 @@ const ChartCard = ({
   </section>
 )
 
-const Placeholder = () => <div className="h-[320px] rounded-lg bg-slate-900/60" />
+const Placeholder = () => <div className="h-[320px] rounded-lg bg-slate-900/60 chart-placeholder" />

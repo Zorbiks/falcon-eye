@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, ComposedChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts'
 import { getRegionCountryStats } from 'src/services/statsService'
 import type { RegionCountryStats } from 'src/types/stats'
 
@@ -44,7 +44,7 @@ export default function RegionCountryChart({ region }: Props) {
 
 const RegionChart = ({ data }: { data: RegionCountryStats[] }) => (
   <ResponsiveContainer width="100%" height={320}>
-    <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>
+    <ComposedChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>
       <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
       <XAxis type="number" stroke="#94a3b8" />
       <YAxis type="category" dataKey="country" stroke="#94a3b8" width={140} />
@@ -52,8 +52,10 @@ const RegionChart = ({ data }: { data: RegionCountryStats[] }) => (
         contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
         labelStyle={{ color: '#e2e8f0' }}
       />
+      <Legend />
       <Bar dataKey="totalEvents" name="Events" fill="#22c55e" radius={[0, 4, 4, 0]} />
-    </BarChart>
+      <Bar dataKey="totalFatalities" name="Fatalities" fill="#ef4444" radius={[0, 4, 4, 0]} />
+    </ComposedChart>
   </ResponsiveContainer>
 )
 
@@ -73,4 +75,4 @@ const ChartCard = ({
   </section>
 )
 
-const Placeholder = () => <div className="h-[320px] rounded-lg bg-slate-900/60" />
+const Placeholder = () => <div className="h-[320px] rounded-lg bg-slate-900/60 chart-placeholder" />

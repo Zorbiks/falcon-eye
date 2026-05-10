@@ -1,5 +1,5 @@
 import api from 'src/lib/eventsAPI'
-import type { AdminRiskStats, CountryStats, EventTypeStats, RegionCountryStats, YearStats } from 'src/types/stats'
+import type { CountryStats, EventTypeStats, RegionCountryStats, YearStats } from 'src/types/stats'
 
 type ApiMessageResponse = {
   message: string
@@ -39,6 +39,7 @@ const buildDateParams = (start?: string, end?: string) => {
   return params
 }
 
+// by country
 export const getCountryStats = async (country: string): Promise<CountryStats | null> => {
   try {
     const response = await api.get<CountryStats | ApiMessageResponse>(`/stats/${encodeURIComponent(country)}`)
@@ -49,6 +50,7 @@ export const getCountryStats = async (country: string): Promise<CountryStats | n
   }
 }
 
+// by year
 export const getCountryStatsByYear = async (country: string, start?: string, end?: string): Promise<YearStats[]> => {
   try {
     const response = await api.get<YearStats[] | ApiMessageResponse>(`/stats/${encodeURIComponent(country)}/by-year`, {
@@ -62,6 +64,7 @@ export const getCountryStatsByYear = async (country: string, start?: string, end
   }
 }
 
+// by event type
 export const getCountryStatsByEventType = async (
   country: string,
   start?: string,
@@ -82,22 +85,7 @@ export const getCountryStatsByEventType = async (
   }
 }
 
-export const getCountryRiskStats = async (country: string, start?: string, end?: string): Promise<AdminRiskStats[]> => {
-  try {
-    const response = await api.get<AdminRiskStats[] | ApiMessageResponse>(
-      `/stats/${encodeURIComponent(country)}/risk`,
-      {
-        params: buildDateParams(start, end),
-      },
-    )
-
-    return toArrayResponse(response.data)
-  } catch (error) {
-    console.error('Error fetching risk stats:', error)
-    return []
-  }
-}
-
+// by region
 export const getRegionCountryStats = async (region: string): Promise<RegionCountryStats[]> => {
   try {
     const response = await api.get<RegionCountryStats[] | ApiMessageResponse>(

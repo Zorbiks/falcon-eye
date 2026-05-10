@@ -169,4 +169,22 @@
       transform: scale(1);
     }
   }
+
+  /* Chart placeholder opacity pulse */
+  .chart-placeholder {
+    animation: chart-opacity 1.4s ease-in-out infinite;
+    opacity: 0.85;
+  }
+
+  @keyframes chart-opacity {
+    0% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.4;
+    }
+  }
 }

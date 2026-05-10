@@ -89,4 +89,4 @@ const ChartCard = ({
   </section>
 )
 
-const Placeholder = () => <div className="h-[320px] rounded-lg bg-slate-900/60" />
+const Placeholder = () => <div className="h-[320px] rounded-lg bg-slate-900/60 chart-placeholder" />

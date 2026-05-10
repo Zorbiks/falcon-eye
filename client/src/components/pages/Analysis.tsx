@@ -3,14 +3,7 @@ import { format } from 'date-fns'
 import { useGlobalData } from 'src/context'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'src/components/ui/select'
 import { MENA_COUNTRIES, MIDDLE_EAST_COUNTRIES, NORTH_AFRICA_COUNTRIES } from '../../canstants/filterDrawer'
-import {
-  EventsByYearChart,
-  EventTypeChart,
-  RegionCountryChart,
-  RiskByAdminChart,
-  StatsSummary,
-  SubEventBreakdownChart,
-} from '../charts'
+import { EventsByYearChart, EventTypeChart, RegionCountryChart, StatsSummary, SubEventBreakdownChart } from '../charts'
 
 const regionByCountry = (country: string) => {
   if (NORTH_AFRICA_COUNTRIES.includes(country)) {
@@ -70,12 +63,11 @@ export default function Analysis() {
       </div>
 
       <div className="w-[95%] space-y-6">
-        <StatsSummary country={analysisCountry} />
+        <StatsSummary country={selectedCountry} />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <EventsByYearChart country={analysisCountry} start={start} end={end} />
           <EventTypeChart country={analysisCountry} start={start} end={end} />
-          <RiskByAdminChart country={analysisCountry} start={start} end={end} />
           <RegionCountryChart region={analysisRegion} />
           <div className="lg:col-span-2">
             <SubEventBreakdownChart country={analysisCountry} start={start} end={end} />
