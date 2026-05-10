@@ -5,6 +5,14 @@ type ApiMessageResponse = {
   message: string
 }
 
+type AdvancedEventSearchParams = {
+  region: string
+  country: string
+  eventTypes: string[]
+  from: string
+  to: string
+}
+
 const toEventArray = (payload: AcledEvent[] | ApiMessageResponse): AcledEvent[] => {
   if (Array.isArray(payload)) {
     return payload
@@ -43,7 +51,14 @@ export const searchEvents = async ({
   from,
   to,
 }: SearchEventsParams): Promise<AcledEvent[]> => {
-  const hasCompleteSearchParams = Boolean(region && country && eventType && from && to)
+  const normalizedRegion = region.trim()
+  const normalizedCountry = country.trim()
+  const normalizedEventType = eventType.trim()
+  const normalizedFrom = from.trim()
+  const normalizedTo = to.trim()
+  const hasCompleteSearchParams = Boolean(
+    normalizedRegion && normalizedCountry && normalizedEventType && normalizedFrom && normalizedTo,
+  )
 
   if (!hasCompleteSearchParams) {
     console.error('Incomplete search params. region, country, eventType, from, and to are all required.')
@@ -53,17 +68,62 @@ export const searchEvents = async ({
   try {
     const response = await api.get<AcledEvent[] | ApiMessageResponse>(`/search`, {
       params: {
-        region,
-        country,
-        'event-type': eventType,
-        from,
-        to,
+        region: normalizedRegion,
+        country: normalizedCountry,
+        'event-type': normalizedEventType,
+        from: normalizedFrom,
+        to: normalizedTo,
       },
     })
 
     return toEventArray(response.data)
   } catch (error) {
     console.error('Error searching events:', error)
+    return []
+  }
+}
+
+export const searchEventsByAdvancedFilters = async ({
+  region,
+  country,
+  eventTypes,
+  from,
+  to,
+}: AdvancedEventSearchParams): Promise<AcledEvent[]> => {
+  const normalizedRegion = region.trim() || 'all'
+  const normalizedCountry = country.trim() || 'all'
+  const normalizedFrom = from.trim()
+  const normalizedTo = to.trim()
+  const normalizedEventTypes = Array.from(new Set(eventTypes.map((eventType) => eventType.trim()).filter(Boolean)))
+  const eventTypesToQuery = normalizedEventTypes.length > 0 ? normalizedEventTypes : ['all']
+
+  if (!normalizedFrom || !normalizedTo) {
+    console.error('Incomplete advanced filter params. from and to are required.')
+    return []
+  }
+
+  try {
+    const responses = await Promise.all(
+      eventTypesToQuery.map((eventType) =>
+        searchEvents({
+          region: normalizedRegion,
+          country: normalizedCountry,
+          eventType,
+          from: normalizedFrom,
+          to: normalizedTo,
+        }),
+      ),
+    )
+
+    const dedupedEvents = new Map<string, AcledEvent>()
+
+    responses.flat().forEach((event) => {
+      dedupedEvents.set(event.rowKey, event)
+    })
+
+    return Array.from(dedupedEvents.values())
+  } catch (error) {
+    console.error('Error searching events with advanced filters:', error)
     return []
   }
 }

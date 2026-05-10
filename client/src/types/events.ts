@@ -31,7 +31,7 @@ export interface SearchEventsParams {
   to: string
 }
 
-export type EventRegionFilter = 'All' | 'Middle East' | 'North Africa'
+export type EventRegionFilter = 'All' | 'Middle East' | 'Northern Africa'
 
 export interface EventFilters {
   region: EventRegionFilter

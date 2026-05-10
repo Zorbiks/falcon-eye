@@ -171,23 +171,6 @@ public class AcledEventController {
     }
 
     /**
-     * GET /api/events/stats/{country}/risk
-     * Ranks admin1 regions by risk score (fatalities * popExposure).
-     * Optional: ?start=YYYY-MM-DD&end=YYYY-MM-DD
-     */
-    @GetMapping("/stats/{countryName}/risk")
-    public ResponseEntity<?> getRiskByAdmin1(
-            @PathVariable String countryName,
-            @RequestParam(required = false) String start,
-            @RequestParam(required = false) String end) {
-        String country = titleCase(countryName);
-        List<AdminRiskStats> stats = hbaseService.getRiskByAdmin1(country, start, end);
-        if (stats.isEmpty())
-            return ResponseEntity.ok(new MessageResponse("No data found for country: " + country));
-        return ResponseEntity.ok(stats);
-    }
-
-    /**
      * GET /api/events/stats/region/{regionName}
      * Aggregates all countries within a region, ranked by total events.
      */

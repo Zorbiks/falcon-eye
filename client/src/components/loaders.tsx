@@ -149,41 +149,37 @@ export function CasualtiesCardSkeleton() {
 
 export function ThreatAssessmentSkeleton() {
   return (
-    <div className="bg-slate-950/80 border border-slate-800/70 rounded-2xl p-5 w-full shadow-2xl flex-1 min-w-fit">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+    <div className="w-full rounded-2xl border border-slate-800/70 bg-slate-950/80 p-4 shadow-2xl sm:p-5">
+      <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
-          <Skeleton className="h-4 w-32 bg-slate-800" />
+          <Skeleton className="h-4 w-36 bg-slate-800" />
           <Skeleton className="h-3.5 w-3.5 rounded-full bg-slate-800/70" />
         </div>
-        {/* Risk badge */}
         <Skeleton className="h-6 w-20 rounded-full bg-slate-800/70" />
       </div>
 
-      <div className="flex items-center gap-10">
-        {/* Gauge skeleton */}
-        <div className="relative flex flex-col items-center flex-shrink-0">
-          <Skeleton className="w-32 h-20 rounded-full bg-slate-800/50" style={{ clipPath: 'inset(0 0 40% 0)' }} />
-          <Skeleton className="absolute bottom-1 h-8 w-10 bg-slate-800" />
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[0, 1, 2].map((item) => (
+            <div key={item} className="rounded-lg border border-slate-800 bg-slate-900/50 p-3">
+              <Skeleton className="mb-2 h-2.5 w-16 bg-slate-800/70" />
+              <Skeleton className="h-7 w-14 bg-slate-800" />
+            </div>
+          ))}
         </div>
 
-        {/* Right content */}
-        <div className="flex-1 space-y-4">
-          {/* Pipeline Analytics label + shift */}
-          <div>
-            <Skeleton className="h-2.5 w-28 bg-slate-800/70 mb-2" />
-            <Skeleton className="h-6 w-36 bg-slate-800" />
-          </div>
+        <div className="h-px w-full bg-slate-800/70" />
 
-          {/* List items */}
-          <ul className="space-y-2">
-            {[48, 56, 64].map((w, i) => (
-              <li key={i} className="flex items-start gap-2">
-                <Skeleton className="h-3 w-2 bg-slate-800/50 mt-0.5 flex-shrink-0" />
-                <Skeleton className={`h-3 w-${w} bg-slate-800/60`} style={{ width: `${w * 2}px` }} />
-              </li>
+        <div>
+          <Skeleton className="mb-2 h-2.5 w-20 bg-slate-800/70" />
+          <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-1">
+            {[90, 120, 80].map((width, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Skeleton className="h-2.5 w-3 bg-slate-800/50" />
+                <Skeleton className="h-2.5 bg-slate-800/70" style={{ width: `${width}px` }} />
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
     </div>

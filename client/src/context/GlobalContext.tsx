@@ -1,11 +1,12 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { getRecentEvents } from '../services/eventService'
+import { getRecentEvents, searchEventsByAdvancedFilters } from '../services/eventService'
 import { fetchNewsFeed } from '../services/feedService'
 import type { AcledEvent, EventFilters, EventRegionFilter } from '../types/events'
 import type { FeedItem } from '../types/feed'
 import useLocalStorageState from 'src/hooks/use-localstorage-state'
+import { filterEventsClientSide, RangeOption } from '../lib/eventFilter'
 
 export type BookmarkItem = {
   id: string
@@ -18,13 +19,16 @@ export type BookmarkItem = {
 type GlobalContextValue = {
   events: AcledEvent[]
   isLoading: boolean
+  serverEvents: AcledEvent[]
   error: string | null
   country: string | null
   setCountry: (country: string | null) => void
   fetchEvents: () => Promise<void>
   eventFilters: EventFilters
+  applyServerFilters: (filters: EventFilters) => Promise<void>
   applyEventFilters: (filters: EventFilters) => Promise<void>
   resetEventFilters: () => Promise<void>
+  applyLocalFilters: (category: string, range?: RangeOption) => void
   feedData: FeedItem[] | []
   isFeedLoading: boolean
   hasFeedLoaded: boolean
@@ -63,15 +67,21 @@ const regionCountryMap: Record<Exclude<EventRegionFilter, 'All'>, string[]> = {
     'United Arab Emirates',
     'Yemen',
   ],
-  'North Africa': ['Algeria', 'Egypt', 'Libya', 'Morocco', 'Mauritania', 'Sudan', 'Tunisia', 'Western Sahara'],
+  'Northern Africa': ['Algeria', 'Egypt', 'Libya', 'Morocco', 'Mauritania', 'Sudan', 'Tunisia', 'Western Sahara'],
 }
 
-const isDateRangeSelected = (filters: EventFilters) => Boolean(filters.startDate || filters.endDate)
-
 const normalizeEventType = (value: string) => value.trim().toLowerCase()
+const formatDateForApi = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
 
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [events, setEvents] = useState<AcledEvent[]>([])
+  const [serverEvents, setServerEvents] = useState<AcledEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [eventFilters, setEventFilters] = useState<EventFilters>(defaultEventFilters)
@@ -82,66 +92,75 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [feedError, setFeedError] = useState<string | null>(null)
   const [bookmarks, setBookmarks] = useLocalStorageState<BookmarkItem[]>('falcon-eye-bookmarks', [])
 
-  const getCurrentEventPeriod = () => {
-    const now = new Date()
-
-    return {
-      year: now.getFullYear(),
-      month: now.getMonth() + 1,
-    }
-  }
-
-  const resolveCountryFilter = (filters: EventFilters) => {
-    if (filters.country !== 'All') {
-      return filters.country
-    }
-
-    if (filters.region === 'All') {
-      return undefined
-    }
-
-    return undefined
-  }
-
   const filterEventsLocally = (items: AcledEvent[], filters: EventFilters) => {
     const selectedEventTypes = new Set(filters.eventTypes.map(normalizeEventType))
     const regionCountries = filters.region === 'All' ? null : new Set(regionCountryMap[filters.region])
+    const selectedCountry = filters.country === 'All' ? null : filters.country
 
     return items.filter((event) => {
       const matchesRegion = !regionCountries || regionCountries.has(event.country)
+      const matchesCountry = !selectedCountry || event.country === selectedCountry
       const matchesEventType =
         selectedEventTypes.size === 0 || selectedEventTypes.has(normalizeEventType(event.eventType))
 
-      return matchesRegion && matchesEventType
+      return matchesRegion && matchesCountry && matchesEventType
     })
   }
 
-  const fetchEvents = async (filters: EventFilters = eventFilters) => {
-    setIsLoading(true)
-    setError(null)
+  const fetchServerEvents = useCallback(
+    async (filters: EventFilters = eventFilters) => {
+      setIsLoading(true)
+      setError(null)
 
-    try {
-      const response = await getRecentEvents()
+      try {
+        const hasDateRange = Boolean(filters.startDate && filters.endDate)
 
-      setEvents(filterEventsLocally(response, filters))
-    } catch (fetchError) {
-      console.error('Failed to fetch map events:', fetchError)
-      setError('Failed to fetch map events.')
-      setEvents([])
-    } finally {
-      setIsLoading(false)
-    }
-  }
+        const response = hasDateRange
+          ? await searchEventsByAdvancedFilters({
+              region: filters.region === 'All' ? 'all' : filters.region,
+              country: filters.country === 'All' ? 'all' : filters.country,
+              eventTypes: filters.eventTypes,
+              from: formatDateForApi(filters.startDate as Date),
+              to: formatDateForApi(filters.endDate as Date),
+            })
+          : await getRecentEvents()
 
-  const applyEventFilters = useCallback(async (filters: EventFilters) => {
-    setEventFilters(filters)
-    await fetchEvents(filters)
-  }, [])
+        setServerEvents(response)
+
+        setEvents(hasDateRange ? response : filterEventsLocally(response, filters))
+      } catch (fetchError) {
+        console.error('Failed to fetch map events:', fetchError)
+        setError('Failed to fetch map events.')
+        setServerEvents([])
+        setEvents([])
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [eventFilters],
+  )
+
+  const applyServerFilters = useCallback(
+    async (filters: EventFilters) => {
+      setEventFilters(filters)
+      await fetchServerEvents(filters)
+    },
+    [fetchServerEvents],
+  )
+
+  const applyEventFilters = applyServerFilters
 
   const resetEventFilters = useCallback(async () => {
     setEventFilters(defaultEventFilters)
-    await fetchEvents(defaultEventFilters)
-  }, [])
+    await fetchServerEvents(defaultEventFilters)
+  }, [fetchServerEvents])
+
+  const applyLocalFilters = useCallback(
+    (category: string, range: RangeOption = 'All') => {
+      setEvents(filterEventsClientSide(serverEvents, category, range))
+    },
+    [serverEvents],
+  )
 
   const setCountry = useCallback((country: string | null) => {
     setEventFilters((current) => ({
@@ -191,8 +210,8 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   )
 
   useEffect(() => {
-    fetchEvents()
-  }, [])
+    fetchServerEvents()
+  }, [fetchServerEvents])
 
   useEffect(() => {
     fetchFeed()
@@ -201,12 +220,14 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const value = useMemo(
     () => ({
       events,
+      serverEvents,
       isLoading,
       error,
       country: eventFilters.country === 'All' ? null : eventFilters.country,
       setCountry,
-      fetchEvents,
+      fetchEvents: fetchServerEvents,
       eventFilters,
+      applyServerFilters,
       applyEventFilters,
       resetEventFilters,
       feedData,
@@ -217,21 +238,24 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       bookmarks,
       toggleBookmark,
       isBookmarked,
+      applyLocalFilters,
     }),
     [
       eventFilters,
       error,
       bookmarks,
       events,
+      serverEvents,
       feedData,
       feedError,
       hasFeedLoaded,
       isFeedLoading,
       isLoading,
       isBookmarked,
+      applyServerFilters,
       applyEventFilters,
       resetEventFilters,
-      fetchEvents,
+      fetchServerEvents,
       fetchFeed,
       toggleBookmark,
       setCountry,

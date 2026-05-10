@@ -5,6 +5,9 @@ export interface FeedItem {
   source: string
   publishedAt: string
   imageUrl: string | null
+  // human-friendly labels (optional, can be derived from source/publishedAt)
+  sourceLabel?: string
+  publishedLabel?: string
 }
 
 export interface FeedCard extends FeedItem {

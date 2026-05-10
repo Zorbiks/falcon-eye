@@ -4,7 +4,7 @@ import CategoriesStatsCard from '../CategoriesStatsCard'
 import Sources from '../sources'
 import Filters from 'src/components/filters'
 import CasualtiesCard from '../casulaties'
-import EscalationCard from '../escalation'
+import EscalationCard from '../OperationalSnapshot'
 
 export default function Home() {
   return (
