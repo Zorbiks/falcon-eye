@@ -43,7 +43,10 @@ export default function RegionCountryChart({ region }: Props) {
   const chartHeight = getChartHeight(chartData.length)
 
   return (
-    <ChartCard title="Regional country breakdown" description="Total events by country inside the selected region.">
+    <ChartCard
+      title="Regional country breakdown"
+      description="Total events by country inside the selected country's region."
+    >
       {isLoading ? <Placeholder /> : <RegionChart data={chartData} height={chartHeight} />}
     </ChartCard>
   )

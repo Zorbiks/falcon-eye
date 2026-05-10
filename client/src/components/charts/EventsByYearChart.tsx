@@ -25,7 +25,7 @@ export default function EventsByYearChart({ country, start, end }: Props) {
   }, [country, start, end])
 
   return (
-    <ChartCard title="Events and fatalities by year" description="Annual totals from the stats endpoint.">
+    <ChartCard title="Events and fatalities by year" description="Annual totals.">
       {isLoading ? <Placeholder /> : <YearChart data={data} />}
     </ChartCard>
   )

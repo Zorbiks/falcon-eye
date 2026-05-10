@@ -60,7 +60,7 @@ export default function SubEventBreakdownChart({ country, start, end }: Props) {
   const chartHeight = getChartHeight(data.length)
 
   return (
-    <ChartCard title="Sub-event breakdown" description="Top sub-event categories aggregated from event types.">
+    <ChartCard title="Sub-event breakdown" description="Top sub-event.">
       {isLoading ? <Placeholder /> : <SubEventChart data={data} height={chartHeight} />}
     </ChartCard>
   )
