@@ -2,7 +2,7 @@ import { useAuth } from 'src/context'
 import { Link } from 'react-router-dom'
 import { Button } from 'src/components/ui/button'
 import { useLocation } from 'react-router-dom'
-import { UserAccountMenu } from './user-account-menu'
+import { UserAccountMenu } from './userMenu'
 
 export const Header = () => {
   const { pathname } = useLocation()

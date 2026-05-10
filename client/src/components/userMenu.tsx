@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { ChevronDown, UserCircle2 } from 'lucide-react'
 import { Button } from 'src/components/ui/button'
 import type { AuthUser } from 'src/types/auth'
-import { UserProfileDialog } from './user-profile-dialog'
-import { UserBookmarksDrawer } from './user-bookmarks-drawer'
+import { UserProfileDialog } from './userDialog'
+import { UserBookmarksDrawer } from './bookmarksDrawer'
 
 type UserAccountMenuProps = {
   user: AuthUser
