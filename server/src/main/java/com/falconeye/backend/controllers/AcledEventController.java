@@ -1,12 +1,12 @@
 package com.falconeye.backend.controllers;
 
 import com.falconeye.backend.dto.AdminRiskStats;
+import com.falconeye.backend.dto.CountryStats;
 import com.falconeye.backend.dto.EventTypeStats;
 import com.falconeye.backend.dto.MessageResponse;
 import com.falconeye.backend.dto.RegionCountryStats;
 import com.falconeye.backend.dto.YearStats;
 import com.falconeye.backend.models.AcledEvent;
-import com.falconeye.backend.models.CountryStats;
 import com.falconeye.backend.services.HBaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

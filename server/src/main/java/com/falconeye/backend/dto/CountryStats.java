@@ -1,4 +1,4 @@
-package com.falconeye.backend.models;
+package com.falconeye.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

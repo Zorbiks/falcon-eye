@@ -1,8 +1,8 @@
 package com.falconeye.backend.services;
 
 import com.falconeye.backend.models.AcledEvent;
-import com.falconeye.backend.models.CountryStats;
 import com.falconeye.backend.dto.AdminRiskStats;
+import com.falconeye.backend.dto.CountryStats;
 import com.falconeye.backend.dto.EventTypeStats;
 import com.falconeye.backend.dto.RegionCountryStats;
 import com.falconeye.backend.dto.YearStats;
