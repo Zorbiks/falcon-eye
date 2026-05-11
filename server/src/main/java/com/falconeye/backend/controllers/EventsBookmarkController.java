@@ -1,7 +1,8 @@
 package com.falconeye.backend.controllers;
 
 import com.falconeye.backend.dto.MessageResponse;
-import com.falconeye.backend.services.BookmarkService;
+import com.falconeye.backend.models.AcledEvent;
+import com.falconeye.backend.services.EventsBookmarkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,23 +13,22 @@ import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/bookmarks")
-public class BookmarkController {
+@RequestMapping("/api/bookmarks/events")
+public class EventsBookmarkController {
 
     @Autowired
-    private BookmarkService bookmarkService;
+    private EventsBookmarkService bookmarkService;
 
     // POST /api/bookmarks
-    // Body: { "rowKey": "Morocco#01-April-2006#2032.0" }
+    // Body: full AcledEvent JSON object
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> addBookmark(Authentication auth, @RequestBody Map<String, String> body) {
-        String rowKey = body.get("rowKey");
-        if (rowKey == null || rowKey.isBlank()) {
+    public ResponseEntity<?> addBookmark(Authentication auth, @RequestBody AcledEvent event) {
+        if (event.getRowKey() == null || event.getRowKey().isBlank()) {
             return ResponseEntity.badRequest().body(new MessageResponse("rowKey is required."));
         }
 
-        return bookmarkService.addBookmark(auth.getName(), rowKey)
+        return bookmarkService.addBookmark(auth.getName(), event)
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(404).body(new MessageResponse("User not found.")));
     }

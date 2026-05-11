@@ -1,7 +1,8 @@
 package com.falconeye.backend.services;
 
 import com.falconeye.backend.dto.BookmarkResponse;
-import com.falconeye.backend.models.Bookmark;
+import com.falconeye.backend.models.AcledEvent;
+import com.falconeye.backend.models.EventsBookmark;
 import com.falconeye.backend.models.User;
 import com.falconeye.backend.repositories.BookmarkRepository;
 import com.falconeye.backend.repositories.UserRepository;
@@ -14,7 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class BookmarkService {
+public class EventsBookmarkService {
 
     @Autowired
     private BookmarkRepository bookmarkRepository;
@@ -22,22 +23,36 @@ public class BookmarkService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private HBaseService hbaseService;
-
-    public Optional<BookmarkResponse> addBookmark(String username, String rowKey) {
+    /**
+     * Bookmarks an event, storing all event fields in the bookmarks table.
+     * If already bookmarked, returns the existing bookmark unchanged.
+     */
+    public Optional<BookmarkResponse> addBookmark(String username, AcledEvent event) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) return Optional.empty();
 
         User user = userOpt.get();
 
         return Optional.of(
-            bookmarkRepository.findByUserIdAndRowKey(user.getId(), rowKey)
+            bookmarkRepository.findByUserIdAndRowKey(user.getId(), event.getRowKey())
                 .map(BookmarkResponse::from)
                 .orElseGet(() -> {
-                    Bookmark bookmark = new Bookmark();
+                    EventsBookmark bookmark = new EventsBookmark();
                     bookmark.setUser(user);
-                    bookmark.setRowKey(rowKey);
+                    bookmark.setRowKey(event.getRowKey());
+                    bookmark.setWeek(event.getWeek());
+                    bookmark.setRegion(event.getRegion());
+                    bookmark.setCountry(event.getCountry());
+                    bookmark.setAdmin1(event.getAdmin1());
+                    bookmark.setEventType(event.getEventType());
+                    bookmark.setSubEventType(event.getSubEventType());
+                    bookmark.setFatalities(event.getFatalities());
+                    bookmark.setLatitude(event.getLatitude());
+                    bookmark.setLongitude(event.getLongitude());
+                    bookmark.setDisorderType(event.getDisorderType());
+                    bookmark.setEvents(event.getEvents());
+                    bookmark.setPopExposure(event.getPopExposure());
+                    bookmark.setCritical(event.isCritical());
                     return BookmarkResponse.from(bookmarkRepository.save(bookmark));
                 })
         );
@@ -55,6 +70,9 @@ public class BookmarkService {
         return true;
     }
 
+    /**
+     * Returns all bookmarks for the user. All event data is already in the DB — no HBase call needed.
+     */
     public Optional<List<BookmarkResponse>> getMyBookmarks(String username) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) return Optional.empty();
@@ -62,13 +80,7 @@ public class BookmarkService {
         return Optional.of(
             bookmarkRepository.findByUserId(userOpt.get().getId())
                 .stream()
-                .map(bookmark -> {
-                    BookmarkResponse response = BookmarkResponse.from(bookmark);
-                    // Enrich with event data from HBase
-                    hbaseService.getEventByRowKey(bookmark.getRowKey())
-                            .ifPresent(response::setEvent);
-                    return response;
-                })
+                .map(BookmarkResponse::from)
                 .collect(Collectors.toList())
         );
     }

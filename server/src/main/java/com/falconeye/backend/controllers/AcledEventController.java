@@ -1,6 +1,5 @@
 package com.falconeye.backend.controllers;
 
-import com.falconeye.backend.dto.AdminRiskStats;
 import com.falconeye.backend.dto.CountryStats;
 import com.falconeye.backend.dto.EventTypeStats;
 import com.falconeye.backend.dto.MessageResponse;

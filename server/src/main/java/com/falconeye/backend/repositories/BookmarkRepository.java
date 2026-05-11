@@ -1,18 +1,18 @@
 package com.falconeye.backend.repositories;
 
-import com.falconeye.backend.models.Bookmark;
+import com.falconeye.backend.models.EventsBookmark;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
+public interface BookmarkRepository extends JpaRepository<EventsBookmark, Long> {
 
     // Fetch all bookmarks belonging to a user
-    List<Bookmark> findByUserId(Long userId);
+    List<EventsBookmark> findByUserId(Long userId);
 
     // Check if a specific bookmark already exists (for toggle logic)
-    Optional<Bookmark> findByUserIdAndRowKey(Long userId, String rowKey);
+    Optional<EventsBookmark> findByUserIdAndRowKey(Long userId, String rowKey);
 
     // For the unbookmark delete operation
     void deleteByUserIdAndRowKey(Long userId, String rowKey);
