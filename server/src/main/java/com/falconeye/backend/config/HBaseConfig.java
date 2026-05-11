@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.coprocessor.AggregationClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
@@ -21,16 +22,18 @@ public class HBaseConfig {
     @Bean
     public Configuration hbaseConfiguration() {
         Configuration config = HBaseConfiguration.create();
-        
-        // Use the injected variable instead of a hardcoded string
-        config.set("hbase.zookeeper.quorum", zookeeperQuorum); 
+        config.set("hbase.zookeeper.quorum", zookeeperQuorum);
         config.set("hbase.zookeeper.property.clientPort", zookeeperClientPort);
-        
         return config;
     }
 
     @Bean
     public Connection hbaseConnection(Configuration hbaseConfiguration) throws IOException {
         return ConnectionFactory.createConnection(hbaseConfiguration);
+    }
+
+    @Bean
+    public AggregationClient aggregationClient(Configuration hbaseConfiguration) {
+        return new AggregationClient(hbaseConfiguration);
     }
 }
