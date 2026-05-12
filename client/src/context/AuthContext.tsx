@@ -96,6 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signOut = () => {
+    persistSession(null)
     setSession(null)
     setError(null)
   }
