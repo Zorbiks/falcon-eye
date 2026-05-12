@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 
 import type { FeedCard } from '../types/feed'
 import { formatPublishedDate } from '../utils/timelineFeed'
-import { addBookmark, removeBookmark } from 'src/services/bookmarkService'
+import { addNewsBookmark, removeNewsBookmark } from 'src/services/bookmarkService'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from './ui/drawer'
@@ -34,9 +34,9 @@ export default function TimelineDrawer({
     setIsUpdating(true)
     try {
       if (isBookmarked(bookmarkId)) {
-        await removeBookmark(bookmarkId)
+        await removeNewsBookmark(feedCard.link)
       } else {
-        await addBookmark(bookmarkId)
+        await addNewsBookmark(feedCard)
       }
       onToggleBookmark(feedCard)
     } finally {

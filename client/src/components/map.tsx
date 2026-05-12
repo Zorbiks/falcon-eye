@@ -163,7 +163,7 @@ export default function MainMap() {
       </div>
 
       <div
-        className="relative w-full flex-1 overflow-hidden [&_.leaflet-bar]:border-zinc-800 [&_.leaflet-bar]:shadow-none [&_.leaflet-bar_a]:bg-zinc-900 [&_.leaflet-bar_a]:text-zinc-400 [&_.leaflet-bar_a]:border-zinc-800 [&_.leaflet-bar_a:hover]:bg-emerald-500/20 [&_.leaflet-bar_a:hover]:text-emerald-400 [&_.leaflet-control-zoom-in]:font-mono [&_.leaflet-control-zoom-out]:font-mono"
+        className="relative w-full flex-1 overflow-hidden [&_.leaflet-bar]:border-zinc-800 [&_.leaflet-bar]:shadow-none [&_.leaflet-bar_a]:bg-zinc-900 [&_.leaflet-bar_a]:text-zinc-400 [&_.leaflet-bar_a]:border-zinc-800 [&_.leaflet-bar_a:hover]:bg-emerald-500/20 [&_.leaflet-bar_a:hover]:text-emerald-400 [&_.leaflet-control-zoom-in]:font-mono [&_.leaflet-control-zoom-out]:font-mono z-0"
         style={isLoading ? { animation: 'mapLoadingOpacity .75s ease-in-out infinite alternate' } : undefined}
       >
         <MapContainer

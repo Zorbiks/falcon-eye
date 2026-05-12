@@ -1,27 +1,51 @@
 import { useEffect, useState } from 'react'
-import { Bookmark, CalendarClock, MapPin, Tag, Trash2, X } from 'lucide-react'
+import { Bookmark, CalendarClock, ExternalLink, MapPin, Tag, Trash2, X } from 'lucide-react'
 import { Button } from 'src/components/ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from 'src/components/ui/drawer'
 import { Separator } from 'src/components/ui/separator'
-import { fetchMyBookmarks, removeBookmark } from 'src/services/bookmarkService'
+import {
+  fetchMyEventBookmarks,
+  fetchMyNewsBookmarks,
+  removeEventBookmark,
+  removeNewsBookmark,
+} from 'src/services/bookmarkService'
 import { formatDate } from 'src/utils/dateFormatter'
-import type { BookmarkResponse, UserBookmarksDrawerProps } from 'src/types/bookmarks'
+import type { EventBookmarkResponse, NewsBookmarkResponse, UserBookmarksDrawerProps } from 'src/types/bookmarks'
+
+type DrawerBookmark =
+  | {
+      kind: 'event'
+      id: number
+      createdAt: string
+      rowKey: string
+      event: EventBookmarkResponse
+    }
+  | {
+      kind: 'news'
+      id: number
+      createdAt: string
+      link: string
+      item: NewsBookmarkResponse
+    }
 
 export const UserBookmarksDrawer = ({ open, onOpenChange }: UserBookmarksDrawerProps) => {
-  const [data, setData] = useState<BookmarkResponse[]>([])
+  const [data, setData] = useState<DrawerBookmark[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deletingKey, setDeletingKey] = useState<string | null>(null)
 
-  const handleDeleteBookmark = async (bookmarkId: number, rowKey: string) => {
-    setDeletingId(bookmarkId)
+  const handleDeleteBookmark = async (bookmark: DrawerBookmark) => {
+    const targetKey = `${bookmark.kind}-${bookmark.id}`
+    setDeletingKey(targetKey)
     try {
-      const success = await removeBookmark(rowKey)
+      const success =
+        bookmark.kind === 'event' ? await removeEventBookmark(bookmark.rowKey) : await removeNewsBookmark(bookmark.link)
+
       if (success) {
-        setData((prev) => prev.filter((b) => b.id !== bookmarkId))
+        setData((prev) => prev.filter((b) => !(b.kind === bookmark.kind && b.id === bookmark.id)))
       }
     } finally {
-      setDeletingId(null)
+      setDeletingKey(null)
     }
   }
 
@@ -34,9 +58,26 @@ export const UserBookmarksDrawer = ({ open, onOpenChange }: UserBookmarksDrawerP
       setIsLoading(true)
       setIsError(false)
       try {
-        const bookmarks = await fetchMyBookmarks()
-        console.log(bookmarks)
-        setData(bookmarks)
+        const [eventBookmarks, newsBookmarks] = await Promise.all([fetchMyEventBookmarks(), fetchMyNewsBookmarks()])
+
+        const combined: DrawerBookmark[] = [
+          ...eventBookmarks.map((bookmark) => ({
+            kind: 'event' as const,
+            id: bookmark.id,
+            createdAt: bookmark.createdAt,
+            rowKey: bookmark.rowKey,
+            event: bookmark,
+          })),
+          ...newsBookmarks.map((bookmark) => ({
+            kind: 'news' as const,
+            id: bookmark.id,
+            createdAt: bookmark.createdAt,
+            link: bookmark.link,
+            item: bookmark,
+          })),
+        ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+        setData(combined)
       } catch (error) {
         setIsError(true)
       } finally {
@@ -84,11 +125,20 @@ export const UserBookmarksDrawer = ({ open, onOpenChange }: UserBookmarksDrawerP
           {data && data.length > 0 && (
             <div className="space-y-3">
               {data.map((bookmark) => (
-                <article key={bookmark.id} className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm">
+                <article
+                  key={`${bookmark.kind}-${bookmark.id}`}
+                  className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-semibold text-slate-100">{bookmark.event?.country ?? 'Saved item'}</p>
-                      <p className="mt-1 text-xs text-slate-400 break-all">{bookmark.rowKey}</p>
+                      <p className="text-sm font-semibold text-slate-100">
+                        {bookmark.kind === 'event'
+                          ? bookmark.event.country ?? 'Saved event'
+                          : bookmark.item.title ?? 'Saved article'}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400 break-all">
+                        {bookmark.kind === 'event' ? bookmark.rowKey : bookmark.link}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
@@ -98,8 +148,8 @@ export const UserBookmarksDrawer = ({ open, onOpenChange }: UserBookmarksDrawerP
                         size="sm"
                         variant="ghost"
                         className="h-auto p-1 text-slate-400 hover:text-rose-400 hover:bg-rose-400/10"
-                        disabled={deletingId === bookmark.id}
-                        onClick={() => handleDeleteBookmark(bookmark.id, bookmark.rowKey)}
+                        disabled={deletingKey === `${bookmark.kind}-${bookmark.id}`}
+                        onClick={() => handleDeleteBookmark(bookmark)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -108,27 +158,43 @@ export const UserBookmarksDrawer = ({ open, onOpenChange }: UserBookmarksDrawerP
 
                   <Separator className="my-3 bg-slate-800" />
 
-                  {bookmark.event ? (
+                  {bookmark.kind === 'event' ? (
                     <div className="grid gap-2 text-sm text-slate-300">
                       <div className="flex items-center gap-2">
                         <Tag className="h-4 w-4 text-emerald-400" />
-                        <span>{bookmark.event.eventType}</span>
+                        <span>{bookmark.event.eventType ?? 'Unknown event type'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-slate-500" />
                         <span>
-                          {bookmark.event.region} · {bookmark.event.country}
+                          {bookmark.event.region ?? 'Unknown region'} · {bookmark.event.country ?? 'Unknown country'}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CalendarClock className="h-4 w-4 text-slate-500" />
-                        <span>{bookmark.event.week}</span>
+                        <span>{bookmark.event.week ?? 'Unknown date'}</span>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-slate-300">
-                      This saved item is no longer available in the event dataset.
-                    </p>
+                    <div className="grid gap-2 text-sm text-slate-300">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-emerald-400" />
+                        <span>{bookmark.item.source ?? 'Unknown source'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CalendarClock className="h-4 w-4 text-slate-500" />
+                        <span>{bookmark.item.publishedAt ?? 'Unknown publication date'}</span>
+                      </div>
+                      <a
+                        href={bookmark.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-1 inline-flex items-center gap-2 text-sky-300 hover:text-sky-200"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Open article
+                      </a>
+                    </div>
                   )}
 
                   <div className="mt-3 text-xs text-slate-500">Saved on {formatDate(bookmark.createdAt)}</div>

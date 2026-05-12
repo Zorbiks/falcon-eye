@@ -5,7 +5,7 @@ import { Button } from './ui/button'
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from './ui/drawer'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { getEventDescription, getEventStyle } from 'src/utils/getEventStyle'
-import { addBookmark, removeBookmark } from 'src/services/bookmarkService'
+import { addEventBookmark, removeEventBookmark } from 'src/services/bookmarkService'
 import type { AcledEvent } from 'src/types/events'
 
 type EventDrawerProps = {
@@ -40,9 +40,9 @@ export default function EventDrawer({
     setIsUpdating(true)
     try {
       if (isBookmarked(selectedEventBookmarkId)) {
-        await removeBookmark(selectedEventBookmarkId)
+        await removeEventBookmark(event.rowKey)
       } else {
-        await addBookmark(selectedEventBookmarkId)
+        await addEventBookmark(event)
       }
       onToggleBookmark(event)
     } finally {
