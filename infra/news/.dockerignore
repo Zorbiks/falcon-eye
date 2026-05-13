@@ -1,0 +1,10 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+venv
+.env
+data/
+logs/
+classifier.py
+README.md

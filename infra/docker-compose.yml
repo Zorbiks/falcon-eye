@@ -85,6 +85,19 @@ services:
     depends_on:
       - hbase-master
 
+  flume:
+    image: bde2020/flume
+    container_name: flume-agent
+    volumes:
+      - ./flume/flume.conf:/config/flume.conf
+    env_file:
+      - hadoop.env
+    ports:
+      - "44444:44444"
+    depends_on:
+      - hbase-master
+    command: /app/bin/flume-ng agent --name agent --conf /config --conf-file /config/flume.conf -Dflume.root.logger=INFO,console
+
 networks:
   ubuntu_default:
     external: true
