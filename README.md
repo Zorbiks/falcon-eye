@@ -1,6 +1,6 @@
 # Falcon Eye: OSINT Big Data Project
 
-**Focus:** 10-Year Middle East Conflict Analysis (Iran-Israel)  
+**Focus:** Conflict Analysis in MENA region  
 **Stack:** Arch Linux (Dev) / Windows 11 (Dev) | Hadoop | HBase | Spring Boot | MySQL
 
 ---
