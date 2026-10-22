@@ -1,12 +1,5 @@
 # Falcon Eye
 
-<<<<<<< HEAD
-**An interactive platform for exploring conflict events and regional trends across the Middle East and North Africa.**
-=======
-**Focus:** Conflict Analysis in MENA region  
-**Stack:** Arch Linux (Dev) / Windows 11 (Dev) | Hadoop | HBase | Spring Boot | MySQL
->>>>>>> target/main
-
 Falcon Eye brings more than 400,000 public ACLED events into a map and analytics dashboard. Built as a JEE and Big Data project at ENSAM Casablanca, it combines a React frontend with a Spring Boot API, HBase event storage, and a MySQL-backed user system.
 
 ## Project demo (AWS EC2 instance free trial has expired)
